@@ -1,26 +1,211 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
+/* PicNic by Velvetyne — download from https://velvetyne.fr/fonts/picnic/ and place in /public/fonts/ */
+@font-face {
+  font-family: 'PicNic';
+  src: url('/fonts/PicNic-Regular.woff2') format('woff2'),
+       url('/fonts/PicNic-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #0a0a0f;
+  --bg-card: rgba(14, 14, 22, 0.85);
+  --bg-card-hover: rgba(20, 20, 35, 0.95);
+  --accent: #7EC8E3;
+  --accent-bright: #A8DEFF;
+  --accent-dim: rgba(126, 200, 227, 0.15);
+  --accent-glow: rgba(126, 200, 227, 0.35);
+  --accent-glow-strong: rgba(168, 222, 255, 0.5);
+  --amber: #E8A84C;
+  --amber-glow: rgba(232, 168, 76, 0.4);
+  --text: #e8e8e8;
+  --text-muted: #888;
+  --border-subtle: rgba(126, 200, 227, 0.18);
+  --border-hover: rgba(126, 200, 227, 0.9);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
+  --color-accent: var(--accent);
+  --color-accent-bright: var(--accent-bright);
+  --color-amber: var(--amber);
+  --color-muted: var(--text-muted);
+  --font-picnic: 'PicNic', 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', 'Space Grotesk', sans-serif;
+  --font-sans: 'Inter', 'Space Grotesk', sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', 'Space Grotesk', sans-serif;
+  overflow-x: hidden;
+  min-height: 100dvh;
 }
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.038;
+  pointer-events: none;
+  z-index: 9999;
+  animation: grain-drift 8s steps(10) infinite;
+}
+
+/* ── Keyframes ─────────────────────────────────────── */
+
+@keyframes grain-drift {
+  0%   { transform: translate(0, 0); }
+  10%  { transform: translate(-3%, -5%); }
+  20%  { transform: translate(-7%, 3%); }
+  30%  { transform: translate(4%, -8%); }
+  40%  { transform: translate(-2%, 12%); }
+  50%  { transform: translate(-8%, 6%); }
+  60%  { transform: translate(8%, 0%); }
+  70%  { transform: translate(0%, 8%); }
+  80%  { transform: translate(2%, 18%); }
+  90%  { transform: translate(-6%, 5%); }
+}
+
+@keyframes orb-pulse-a {
+  0%, 100% { transform: scale(1) translate(0, 0); opacity: 0.45; }
+  33%       { transform: scale(1.12) translate(2%, -3%); opacity: 0.65; }
+  66%       { transform: scale(0.92) translate(-1%, 2%); opacity: 0.38; }
+}
+
+@keyframes orb-pulse-b {
+  0%, 100% { transform: scale(1.05) translate(0, 0); opacity: 0.35; }
+  40%       { transform: scale(0.9) translate(-3%, 2%); opacity: 0.55; }
+  70%       { transform: scale(1.15) translate(1%, -2%); opacity: 0.42; }
+}
+
+@keyframes orb-pulse-c {
+  0%, 100% { transform: scale(0.95) translate(0, 0); opacity: 0.4; }
+  50%       { transform: scale(1.2) translate(2%, 3%); opacity: 0.6; }
+}
+
+@keyframes float-particle {
+  0%   { transform: translateY(0) translateX(0); opacity: 0; }
+  8%   { opacity: 0.8; }
+  92%  { opacity: 0.6; }
+  100% { transform: translateY(-120px) translateX(15px); opacity: 0; }
+}
+
+@keyframes eq-bar-active {
+  0%, 100% { transform: scaleY(0.15); }
+  50%       { transform: scaleY(1); }
+}
+
+@keyframes eq-bar-idle {
+  0%, 100% { transform: scaleY(0.25); }
+  50%       { transform: scaleY(0.45); }
+}
+
+@keyframes btn-glow-idle {
+  0%, 100% { box-shadow: 0 0 6px rgba(126, 200, 227, 0.08), inset 0 0 0 1px rgba(126, 200, 227, 0.15); }
+  50%       { box-shadow: 0 0 14px rgba(126, 200, 227, 0.18), inset 0 0 0 1px rgba(126, 200, 227, 0.25); }
+}
+
+@keyframes badge-pulse {
+  0%, 100% { box-shadow: 0 0 6px var(--amber-glow); }
+  50%       { box-shadow: 0 0 14px var(--amber-glow), 0 0 24px rgba(232, 168, 76, 0.2); }
+}
+
+@keyframes scanlines-drift {
+  0%   { background-position: 0 0; }
+  100% { background-position: 0 100px; }
+}
+
+/* ── Equalizer bars ────────────────────────────────── */
+
+.eq-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.eq-bar {
+  width: 3px;
+  border-radius: 1px;
+  background: var(--accent);
+  transform-origin: bottom center;
+  animation: eq-bar-idle 1.4s ease-in-out infinite;
+}
+
+.eq-bar:nth-child(1) { height: 40%; animation-delay: 0ms; }
+.eq-bar:nth-child(2) { height: 75%; animation-delay: 180ms; }
+.eq-bar:nth-child(3) { height: 55%; animation-delay: 90ms; }
+.eq-bar:nth-child(4) { height: 90%; animation-delay: 270ms; }
+.eq-bar:nth-child(5) { height: 50%; animation-delay: 135ms; }
+
+.eq-bars.active .eq-bar {
+  animation-name: eq-bar-active;
+  animation-duration: 0.5s;
+}
+
+/* ── Reactive card idle glow ───────────────────────── */
+
+.reactive-card {
+  animation: btn-glow-idle 3s ease-in-out infinite;
+}
+
+.reactive-card.amber-card {
+  animation: badge-pulse 2s ease-in-out infinite;
+}
+
+/* ── Scan line overlay (video hero) ────────────────── */
+
+.scanlines {
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.12) 2px,
+    rgba(0, 0, 0, 0.12) 4px
+  );
+  animation: scanlines-drift 6s linear infinite;
+}
+
+/* ── Typography ────────────────────────────────────── */
+
+.font-picnic {
+  font-family: 'PicNic', 'Space Grotesk', sans-serif;
+  font-weight: normal;
+  letter-spacing: 0.02em;
+}
+
+.text-glow-accent {
+  text-shadow: 0 0 30px rgba(126, 200, 227, 0.6), 0 0 60px rgba(126, 200, 227, 0.3);
+}
+
+/* ── Scrollbar ─────────────────────────────────────── */
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: rgba(126, 200, 227, 0.25); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(126, 200, 227, 0.5); }
