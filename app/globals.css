@@ -4,8 +4,7 @@
 /* PicNic by Velvetyne — download from https://velvetyne.fr/fonts/picnic/ and place in /public/fonts/ */
 @font-face {
   font-family: 'PicNic';
-  src: url('/fonts/PicNic-Regular.woff2') format('woff2'),
-       url('/fonts/PicNic-Regular.otf') format('opentype');
+  src: url('/fonts/PicNic.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -201,6 +200,19 @@ body::after {
 
 .text-glow-accent {
   text-shadow: 0 0 30px rgba(126, 200, 227, 0.6), 0 0 60px rgba(126, 200, 227, 0.3);
+}
+
+/* ── Logo rotation (hero) ──────────────────────────── */
+
+@keyframes logo-spin {
+  from { transform: rotateY(0deg); }
+  to   { transform: rotateY(360deg); }
+}
+
+.logo-rotating {
+  animation: logo-spin 11s linear infinite;
+  transform-style: preserve-3d;
+  transform-origin: center center;
 }
 
 /* ── Scrollbar ─────────────────────────────────────── */

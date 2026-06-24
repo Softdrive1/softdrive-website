@@ -12,7 +12,7 @@ interface Track {
   isSet?: boolean;
 }
 
-const TRACKS: Track[] = [
+const RELEASES: Track[] = [
   {
     title: "Symphony",
     subtitle: "Out June 26 via Parallel",
@@ -33,9 +33,14 @@ const TRACKS: Track[] = [
     href: "https://soundcloud.com/polyamor-berlin/softdrive-mika-heggemann-das-erste-mal",
   },
   {
-    title: "Leichter Kälter",
+    title: "Leichter // Kälter",
     platform: "soundcloud",
     href: "https://soundcloud.com/polyamor-berlin/softdrive-leichter-ka-lter",
+  },
+  {
+    title: "Law Of Attraction",
+    platform: "soundcloud",
+    href: "https://soundcloud.com/softdrive",
   },
   {
     title: "Sweet Disposition",
@@ -48,6 +53,9 @@ const TRACKS: Track[] = [
     platform: "soundcloud",
     href: "https://soundcloud.com/softdrive/zoey-101",
   },
+];
+
+const SETS: Track[] = [
   {
     title: "Osterrave at Edelfettwerk 2026",
     subtitle: "Live Set",
@@ -192,11 +200,41 @@ const itemVariants: Variants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
+function TrackGroup({ title, tracks }: { title: string; tracks: Track[] }) {
+  return (
+    <div className="mb-10">
+      <motion.p
+        className="text-[10px] tracking-[0.3em] uppercase mb-4"
+        style={{ color: "var(--accent)" }}
+        initial={{ opacity: 0, x: -8 }}
+        whileInView={{ opacity: 0.6, x: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+      >
+        {title}
+      </motion.p>
+      <motion.div
+        className="flex flex-col gap-3"
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-60px" }}
+      >
+        {tracks.map((track) => (
+          <motion.div key={track.title} variants={itemVariants}>
+            <TrackCard track={track} />
+          </motion.div>
+        ))}
+      </motion.div>
+    </div>
+  );
+}
+
 export default function TracksSection() {
   return (
     <section
       id="tracks"
-      className="relative py-20 md:py-28 px-6"
+      className="relative py-20 md:py-28"
       style={{ background: "linear-gradient(180deg, #0a0a0f 0%, #080812 50%, #0a0a0f 100%)" }}
     >
       <div
@@ -210,7 +248,7 @@ export default function TracksSection() {
         aria-hidden="true"
       />
 
-      <div className="relative z-10 max-w-2xl mx-auto">
+      <div className="relative z-10 max-w-[1100px] mx-auto px-6 md:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -218,12 +256,6 @@ export default function TracksSection() {
           transition={{ duration: 0.7 }}
           className="mb-10 md:mb-12 text-center"
         >
-          <p
-            className="text-xs tracking-[0.35em] uppercase mb-3"
-            style={{ color: "var(--accent)", opacity: 0.7 }}
-          >
-            Discography
-          </p>
           <h2
             className="font-picnic leading-none"
             style={{ fontSize: "clamp(2rem, 6vw, 3.5rem)", color: "var(--text)" }}
@@ -232,48 +264,35 @@ export default function TracksSection() {
           </h2>
         </motion.div>
 
-        <motion.div
-          className="flex flex-col gap-3"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-60px" }}
-        >
-          {TRACKS.map((track) => (
-            <motion.div key={track.title} variants={itemVariants}>
-              <TrackCard track={track} />
-            </motion.div>
-          ))}
+        <TrackGroup title="Releases" tracks={RELEASES} />
+        <TrackGroup title="Sets" tracks={SETS} />
 
-          <motion.div variants={itemVariants}>
-            <motion.a
-              href="https://soundcloud.com/softdrive"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="reactive-card flex items-center justify-center gap-3 w-full rounded-xl p-4 cursor-pointer"
-              style={{
-                background: "transparent",
-                border: "1px dashed rgba(126,200,227,0.25)",
-                textDecoration: "none",
-                color: "var(--text-muted)",
-              }}
-              whileHover={{
-                scale: 1.02,
-                borderColor: "rgba(126,200,227,0.6)",
-                color: "var(--accent)",
-                boxShadow: "0 0 20px rgba(126,200,227,0.2)",
-              }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            >
-              <SoundCloudIcon className="w-5 h-5" />
-              <span className="text-sm font-medium tracking-wide">More on SoundCloud</span>
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </motion.a>
-          </motion.div>
-        </motion.div>
+        <motion.a
+          href="https://soundcloud.com/softdrive"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="reactive-card flex items-center justify-center gap-3 w-full rounded-xl p-4 cursor-pointer mt-2"
+          style={{
+            background: "transparent",
+            border: "1px dashed rgba(126,200,227,0.25)",
+            textDecoration: "none",
+            color: "var(--text-muted)",
+          }}
+          whileHover={{
+            scale: 1.02,
+            borderColor: "rgba(126,200,227,0.6)",
+            color: "var(--accent)",
+            boxShadow: "0 0 20px rgba(126,200,227,0.2)",
+          }}
+          whileTap={{ scale: 0.98 }}
+          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        >
+          <SoundCloudIcon className="w-5 h-5" />
+          <span className="text-sm font-medium tracking-wide">More on SoundCloud</span>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </motion.a>
       </div>
     </section>
   );

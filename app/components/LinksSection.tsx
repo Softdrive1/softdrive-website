@@ -2,6 +2,7 @@
 
 import { motion, type Variants } from "framer-motion";
 import { useState } from "react";
+import { FaSoundcloud } from "react-icons/fa";
 
 interface LinkItem {
   label: string;
@@ -20,7 +21,7 @@ const LINKS: LinkItem[] = [
   {
     label: "SoundCloud",
     href: "https://soundcloud.com/softdrive",
-    icon: <SoundCloudIcon />,
+    icon: <FaSoundcloud className="w-full h-full" />,
     external: true,
   },
   {
@@ -46,6 +47,11 @@ const LINKS: LinkItem[] = [
     icon: <DownloadIcon />,
     external: true,
   },
+  {
+    label: "Call",
+    href: "tel:+4917639974493",
+    icon: <PhoneIcon />,
+  },
 ];
 
 function LinkCard({ link }: { link: LinkItem }) {
@@ -56,103 +62,81 @@ function LinkCard({ link }: { link: LinkItem }) {
       href={link.href}
       target={link.external ? "_blank" : undefined}
       rel={link.external ? "noopener noreferrer" : undefined}
-      className="reactive-card relative flex flex-col items-center justify-center gap-3 rounded-2xl p-5 md:p-6 cursor-pointer select-none"
+      className="relative flex flex-col items-center justify-center gap-3 rounded-2xl cursor-pointer select-none"
       style={{
-        background: "var(--bg-card)",
-        border: `1px solid ${hovered ? "var(--accent)" : "var(--accent-dim)"}`,
+        background: hovered ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.62)",
+        border: `1px solid ${hovered ? "rgba(0,0,0,0.18)" : "rgba(0,0,0,0.08)"}`,
+        boxShadow: hovered ? "0 4px 20px rgba(0,0,0,0.1)" : "0 1px 4px rgba(0,0,0,0.05)",
         textDecoration: "none",
         color: "inherit",
         aspectRatio: "1",
         minHeight: "90px",
+        transition: "background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease",
       }}
       onHoverStart={() => setHovered(true)}
       onHoverEnd={() => setHovered(false)}
-      whileHover={{
-        scale: 1.06,
-        boxShadow: "0 0 30px rgba(126,200,227,0.4), 0 0 60px rgba(126,200,227,0.18)",
-        backgroundColor: "rgba(20,20,40,0.95)",
-        transition: { duration: 0.18 },
-      }}
+      whileHover={{ scale: 1.06, transition: { duration: 0.15 } }}
       whileTap={{ scale: 0.94, transition: { duration: 0.06 } }}
-      transition={{ type: "spring", stiffness: 350, damping: 22 }}
     >
       <motion.div
-        className="absolute inset-0 rounded-2xl pointer-events-none"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: hovered ? 1 : 0 }}
-        transition={{ duration: 0.18 }}
-        style={{
-          background: "radial-gradient(circle at 50% 30%, rgba(126,200,227,0.1) 0%, transparent 70%)",
-        }}
-      />
-      <motion.div
-        className="relative z-10 w-6 h-6"
-        animate={{
-          color: hovered ? "var(--accent-bright)" : "var(--accent)",
-          scale: hovered ? 1.15 : 1,
-        }}
-        transition={{ duration: 0.18 }}
+        className="w-6 h-6"
+        animate={{ scale: hovered ? 1.12 : 1 }}
+        transition={{ duration: 0.15 }}
+        style={{ color: hovered ? "#0a0a0f" : "rgba(26,26,26,0.7)" }}
       >
         {link.icon}
       </motion.div>
-      <motion.span
-        className="relative z-10 text-[10px] font-semibold tracking-widest uppercase"
-        animate={{ color: hovered ? "var(--accent-bright)" : "var(--text-muted)" }}
-        transition={{ duration: 0.18 }}
+      <span
+        className="text-[10px] font-semibold tracking-widest uppercase"
+        style={{ color: hovered ? "#0a0a0f" : "rgba(26,26,26,0.5)" }}
       >
         {link.label}
-      </motion.span>
+      </span>
     </motion.a>
   );
 }
 
 const containerVariants: Variants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.08 } },
+  visible: { transition: { staggerChildren: 0.07 } },
 };
 
 const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 20, scale: 0.95 },
-  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5 } },
+  hidden: { opacity: 0, y: 18, scale: 0.95 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.45 } },
 };
 
 export default function LinksSection() {
   return (
     <section
-      id="links"
-      className="relative py-20 md:py-28 px-6"
-      style={{ background: "#08080f" }}
+      id="connect"
+      className="relative"
+      style={{ background: "#c5c5c5", paddingTop: "6rem", paddingBottom: "6rem" }}
     >
       <div
-        className="absolute top-0 left-0 right-0 h-px"
-        style={{ background: "linear-gradient(90deg, transparent, rgba(126,200,227,0.2), transparent)" }}
+        className="absolute left-0 right-0 h-px"
+        style={{ background: "linear-gradient(90deg, transparent, rgba(0,0,0,0.1), transparent)" }}
         aria-hidden="true"
       />
 
-      <div className="relative z-10 max-w-2xl mx-auto">
+      <div className="relative z-10 px-6 md:px-8" style={{ maxWidth: "42rem", marginLeft: "auto", marginRight: "auto" }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.7 }}
-          className="mb-10 md:mb-14 text-center"
+          transition={{ duration: 0.65 }}
+          className="mb-10 md:mb-12 text-center"
         >
-          <p
-            className="text-xs tracking-[0.35em] uppercase mb-3"
-            style={{ color: "var(--accent)", opacity: 0.7 }}
-          >
-            Find us
-          </p>
           <h2
             className="font-picnic leading-none"
-            style={{ fontSize: "clamp(2rem, 6vw, 3.5rem)", color: "var(--text)" }}
+            style={{ fontSize: "clamp(2rem, 6vw, 3.5rem)", color: "#1a1a1a" }}
           >
-            Links
+            Connect
           </h2>
         </motion.div>
 
         <motion.div
-          className="grid grid-cols-3 md:grid-cols-6 gap-3"
+          className="grid grid-cols-4 md:grid-cols-7 gap-3"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -179,14 +163,6 @@ function SpotifyIcon() {
   );
 }
 
-function SoundCloudIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
-      <path d="M1.175 12.225c-.051 0-.094.046-.101.1l-.233 2.154.233 2.105c.007.058.05.098.101.098.05 0 .09-.04.099-.098l.255-2.105-.27-2.154c-.009-.058-.05-.1-.1-.1zm-.899.828c-.06 0-.091.037-.104.094L0 14.479l.172 1.308c.013.06.045.094.09.094.052 0 .089-.04.104-.09l.2-1.312-.2-1.334c-.015-.06-.052-.09-.09-.09zm1.83-1.229c-.063 0-.114.055-.12.132l-.213 2.523.213 2.465c.005.078.057.131.12.131s.114-.053.122-.131l.24-2.465-.24-2.523c-.008-.077-.059-.132-.122-.132zm.84-.414c-.073 0-.132.065-.137.155l-.193 2.938.193 2.853c.005.089.064.15.137.15.074 0 .131-.061.139-.15l.218-2.853-.218-2.938c-.008-.09-.065-.155-.139-.155zm.84-.293c-.083 0-.15.074-.154.176l-.176 3.231.176 3.138c.004.1.071.174.154.174.082 0 .149-.074.155-.174l.2-3.138-.2-3.231c-.006-.102-.073-.176-.155-.176zm.84-.18c-.091 0-.168.084-.172.197l-.159 3.41.159 3.322c.004.112.081.197.172.197s.167-.085.174-.197l.178-3.322-.178-3.41c-.007-.113-.083-.197-.174-.197zm.84-.147c-.101 0-.184.094-.19.219l-.14 3.557.14 3.467c.006.123.089.217.19.217.1 0 .183-.094.191-.217l.157-3.467-.157-3.557c-.008-.125-.091-.219-.191-.219zm.84-.061c-.111 0-.2.104-.207.24l-.123 3.618.123 3.555c.007.135.096.24.207.24.111 0 .2-.105.209-.24l.139-3.555-.139-3.618c-.009-.136-.098-.24-.209-.24zm.84.054c-.12 0-.217.114-.223.262l-.106 3.564.106 3.5c.006.147.103.26.223.26.119 0 .217-.113.225-.26l.119-3.5-.119-3.564c-.008-.148-.106-.262-.225-.262zm.84.11c-.13 0-.233.124-.24.283l-.089 3.454.089 3.393c.007.158.11.28.24.28.129 0 .232-.122.241-.28l.1-3.393-.1-3.454c-.009-.159-.112-.283-.241-.283zm1.71-.186c-.043-.005-.084-.008-.128-.008-.152 0-.292.06-.396.162-.093-.186-.282-.312-.498-.312-.15 0-.286.068-.378.175-.028.032-.043.074-.043.117l-.072 3.345.072 3.283c.007.18.125.32.271.32h.003c.146 0 .265-.14.273-.32l.081-3.283-.081-3.345zm10.67-4.962c-.229-2.559-2.381-4.563-5.004-4.563-.553 0-1.096.097-1.614.281-.212.075-.345.249-.345.47V20.7c.004.228.188.421.417.428h6.546c1.328 0 2.401-1.074 2.401-2.4 0-1.328-1.073-2.401-2.401-2.401-.231 0-.455.033-.668.095.201-.644.312-1.332.312-2.048 0-.383-.03-.764-.089-1.14z" />
-    </svg>
-  );
-}
-
 function InstagramIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
@@ -197,19 +173,8 @@ function InstagramIcon() {
 
 function RAIcon() {
   return (
-    <svg viewBox="0 0 100 100" fill="currentColor" className="w-full h-full">
-      <text
-        x="50%"
-        y="54%"
-        dominantBaseline="middle"
-        textAnchor="middle"
-        fontSize="46"
-        fontWeight="700"
-        fontFamily="Arial, Helvetica, sans-serif"
-        letterSpacing="2"
-      >
-        RA
-      </text>
+    <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
+      <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 5a5 5 0 100 10A5 5 0 0012 7zm0 3a2 2 0 100 4 2 2 0 000-4z" />
     </svg>
   );
 }
@@ -228,6 +193,14 @@ function DownloadIcon() {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full">
       <path d="M12 15V3m0 12-4-4m4 4 4-4" />
       <path d="M2 17l.621 2.485A2 2 0 0 0 4.561 21h14.878a2 2 0 0 0 1.94-1.515L22 17" />
+    </svg>
+  );
+}
+
+function PhoneIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full">
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 5.55 5.55l.91-.91a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21 16.92z" />
     </svg>
   );
 }
