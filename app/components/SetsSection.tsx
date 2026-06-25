@@ -21,20 +21,16 @@ function scSrc(url: string) {
 
 const containerVariants: Variants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
+  visible: { transition: { staggerChildren: 0.09 } },
 };
 
 const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 18 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-};
-
-const cardStyle: React.CSSProperties = {
-  background: "rgba(255,255,255,0.62)",
-  borderRadius: "12px",
-  border: "1px solid rgba(0,0,0,0.08)",
-  overflow: "hidden",
-  boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] },
+  },
 };
 
 export default function SetsSection() {
@@ -42,21 +38,21 @@ export default function SetsSection() {
     <section
       id="sets"
       className="relative"
-      style={{ background: "#c5c5c5", paddingTop: "6rem", paddingBottom: "6rem" }}
+      style={{ background: "#c3bfb9", paddingTop: "6rem", paddingBottom: "6rem" }}
     >
       <div
         className="absolute top-0 left-0 right-0 h-px"
         style={{
-          background: "linear-gradient(90deg, transparent, rgba(0,0,0,0.1), transparent)",
+          background: "linear-gradient(90deg, transparent, rgba(0,0,0,0.13), transparent)",
         }}
         aria-hidden="true"
       />
-      <div className="px-6 md:px-8" style={{ maxWidth: "1100px", marginLeft: "auto", marginRight: "auto" }}>
+      <div className="px-6 md:px-8" style={{ maxWidth: "1000px", marginLeft: "auto", marginRight: "auto" }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.65 }}
+          transition={{ duration: 0.65, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="mb-10 md:mb-12 text-center"
         >
           <h2
@@ -68,8 +64,8 @@ export default function SetsSection() {
         </motion.div>
 
         <motion.div
-          className="flex flex-col gap-3"
-          style={{ maxWidth: "48rem", marginLeft: "auto", marginRight: "auto" }}
+          className="flex flex-col"
+          style={{ gap: "16px", maxWidth: "640px", marginLeft: "auto", marginRight: "auto" }}
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -77,15 +73,17 @@ export default function SetsSection() {
         >
           {SETS.map((set) => (
             <motion.div key={set.id} variants={itemVariants}>
-              <div style={cardStyle}>
-                <iframe
-                  width="100%"
-                  height="120"
-                  style={{ border: "none", display: "block" }}
-                  allow="autoplay"
-                  src={scSrc(set.scUrl)}
-                  title={set.title}
-                />
+              <div className="release-card-outer">
+                <div className="release-card-inner">
+                  <iframe
+                    width="100%"
+                    height="120"
+                    style={{ border: "none", display: "block" }}
+                    allow="autoplay"
+                    src={scSrc(set.scUrl)}
+                    title={set.title}
+                  />
+                </div>
               </div>
             </motion.div>
           ))}

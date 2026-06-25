@@ -10,7 +10,7 @@ export default function AboutSection() {
     <section
       id="about"
       className="relative"
-      style={{ background: "#c5c5c5", paddingTop: "6rem", paddingBottom: "6rem" }}
+      style={{ background: "#c3bfb9", paddingTop: "6rem", paddingBottom: "6rem" }}
     >
       <div
         className="absolute top-0 left-0 right-0 h-px"
@@ -20,7 +20,7 @@ export default function AboutSection() {
         aria-hidden="true"
       />
 
-      <div className="relative z-10 px-6 md:px-8" style={{ maxWidth: "1100px", marginLeft: "auto", marginRight: "auto" }}>
+      <div className="relative z-10 px-6 md:px-8" style={{ maxWidth: "1000px", marginLeft: "auto", marginRight: "auto" }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -37,8 +37,7 @@ export default function AboutSection() {
         </motion.div>
 
         <motion.div
-          className="max-w-2xl mx-auto"
-          style={{ maxWidth: "42rem", marginLeft: "auto", marginRight: "auto" }}
+          style={{ maxWidth: "640px", marginLeft: "auto", marginRight: "auto" }}
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}

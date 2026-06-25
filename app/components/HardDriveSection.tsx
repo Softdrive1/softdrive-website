@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 
 const HardDriveScene = dynamic(() => import("./HardDriveScene"), {
   ssr: false,
-  loading: () => <div style={{ width: "100%", height: "100%", background: "#c5c5c5" }} />,
+  loading: () => <div style={{ width: "100%", height: "100%", background: "#c3bfb9" }} />,
 });
 
 export default function HardDriveSection() {
@@ -12,7 +12,7 @@ export default function HardDriveSection() {
     <section
       style={{
         position: "relative",
-        background: "#c5c5c5",
+        background: "#c3bfb9",
         height: "80vh",
       }}
     >

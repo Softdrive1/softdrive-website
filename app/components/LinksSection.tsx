@@ -111,7 +111,7 @@ export default function LinksSection() {
     <section
       id="connect"
       className="relative"
-      style={{ background: "#c5c5c5", paddingTop: "6rem", paddingBottom: "6rem" }}
+      style={{ background: "#c3bfb9", paddingTop: "6rem", paddingBottom: "6rem" }}
     >
       <div
         className="absolute left-0 right-0 h-px"
@@ -119,7 +119,7 @@ export default function LinksSection() {
         aria-hidden="true"
       />
 
-      <div className="relative z-10 px-6 md:px-8" style={{ maxWidth: "42rem", marginLeft: "auto", marginRight: "auto" }}>
+      <div className="relative z-10 px-6 md:px-8" style={{ maxWidth: "1000px", marginLeft: "auto", marginRight: "auto" }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -137,6 +137,7 @@ export default function LinksSection() {
 
         <motion.div
           className="grid grid-cols-4 md:grid-cols-7 gap-3"
+          style={{ maxWidth: "640px", marginLeft: "auto", marginRight: "auto" }}
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
