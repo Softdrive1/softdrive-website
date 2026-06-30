@@ -6,8 +6,7 @@ interface Release {
   id: string;
   title: string;
   subtitle?: string;
-  isNew?: boolean;
-  presaveUrl?: string;
+  spotifyId?: string;
   scUrl?: string;
 }
 
@@ -15,9 +14,7 @@ const RELEASES: Release[] = [
   {
     id: "symphony",
     title: "Symphony",
-    subtitle: "Out June 26 via Parallel",
-    isNew: true,
-    presaveUrl: "https://paradise.ffm.to/symphony",
+    spotifyId: "3Tm7q3TW6EsJCUZTfBi8Y8",
   },
   {
     id: "leichter-kalter",
@@ -118,102 +115,19 @@ export default function ReleasesSection() {
               <motion.div key={release.id} variants={itemVariants}>
                 <div className="release-card-outer">
                   <div className="release-card-inner">
-                    {release.presaveUrl ? (
-                      /* Symphony — presave card */
-                      <div
-                        className="flex items-center justify-between"
-                        style={{ height: "120px", paddingLeft: "20px", paddingRight: "16px" }}
-                      >
-                        <div>
-                          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                            <span
-                              style={{
-                                color: "#1a1a1a",
-                                fontSize: "15px",
-                                fontWeight: 600,
-                                letterSpacing: "-0.01em",
-                              }}
-                            >
-                              {release.title}
-                            </span>
-                            {release.isNew && (
-                              <span
-                                style={{
-                                  fontSize: "8px",
-                                  fontWeight: 700,
-                                  letterSpacing: "0.22em",
-                                  textTransform: "uppercase",
-                                  background: "#E8A84C",
-                                  color: "#0a0a0f",
-                                  padding: "2px 8px",
-                                  borderRadius: "999px",
-                                }}
-                              >
-                                NEW
-                              </span>
-                            )}
-                          </div>
-                          {release.subtitle && (
-                            <p
-                              style={{
-                                fontSize: "12px",
-                                marginTop: "6px",
-                                color: "rgba(26,20,14,0.42)",
-                                letterSpacing: "0.01em",
-                              }}
-                            >
-                              {release.subtitle}
-                            </p>
-                          )}
-                        </div>
-                        <a
-                          href={release.presaveUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            flexShrink: 0,
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "8px",
-                            padding: "10px 20px",
-                            borderRadius: "999px",
-                            fontSize: "13px",
-                            fontWeight: 600,
-                            letterSpacing: "0.01em",
-                            background: "#1a1a1a",
-                            color: "#fff",
-                            textDecoration: "none",
-                            boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
-                            transition:
-                              "opacity 0.25s, transform 0.25s cubic-bezier(0.25,0.46,0.45,0.94)",
-                          }}
-                          onMouseEnter={(e) => {
-                            (e.currentTarget as HTMLElement).style.opacity = "0.82";
-                            (e.currentTarget as HTMLElement).style.transform = "scale(0.98)";
-                          }}
-                          onMouseLeave={(e) => {
-                            (e.currentTarget as HTMLElement).style.opacity = "1";
-                            (e.currentTarget as HTMLElement).style.transform = "scale(1)";
-                          }}
-                        >
-                          Pre-Save
-                          <span
-                            style={{
-                              width: "20px",
-                              height: "20px",
-                              borderRadius: "50%",
-                              background: "rgba(255,255,255,0.14)",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              fontSize: "11px",
-                              lineHeight: 1,
-                            }}
-                          >
-                            ↗
-                          </span>
-                        </a>
-                      </div>
+                    {release.spotifyId ? (
+                      /* Symphony — Spotify embed (released) */
+                      <iframe
+                        width="100%"
+                        height="152"
+                        style={{ borderRadius: "12px", border: "none", display: "block" }}
+                        src={`https://open.spotify.com/embed/track/${release.spotifyId}?utm_source=generator`}
+                        frameBorder="0"
+                        allowFullScreen
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                        loading="lazy"
+                        title={release.title}
+                      />
                     ) : (
                       /* SoundCloud iframe */
                       <iframe
