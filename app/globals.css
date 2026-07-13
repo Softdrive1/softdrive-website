@@ -1,50 +1,40 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
-/* PicNic by Velvetyne — download from https://velvetyne.fr/fonts/picnic/ and place in /public/fonts/ */
-@font-face {
-  font-family: 'PicNic';
-  src: url('/fonts/PicNic.woff2') format('woff2');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
+/* Fonts (Syne / Inter / Space Grotesk) are loaded via next/font in layout.tsx */
 
 :root {
-  --bg: #0a0a0f;
-  --bg-card: rgba(14, 14, 22, 0.85);
-  --bg-card-hover: rgba(20, 20, 35, 0.95);
-  --accent: #7EC8E3;
-  --accent-bright: #A8DEFF;
-  --accent-dim: rgba(126, 200, 227, 0.15);
-  --accent-glow: rgba(126, 200, 227, 0.35);
-  --accent-glow-strong: rgba(168, 222, 255, 0.5);
-  --amber: #E8A84C;
-  --amber-glow: rgba(232, 168, 76, 0.4);
-  --text: #e8e8e8;
-  --text-muted: #888;
-  --border-subtle: rgba(126, 200, 227, 0.18);
-  --border-hover: rgba(126, 200, 227, 0.9);
+  --bg: #08080b;
+  --bg-elev: #0e0e13;
+  --surface: rgba(255, 255, 255, 0.035);
+  --surface-hover: rgba(255, 255, 255, 0.06);
+  --border: rgba(255, 255, 255, 0.09);
+  --border-hover: rgba(255, 255, 255, 0.22);
+  --text: #eceef2;
+  --text-muted: rgba(236, 238, 242, 0.56);
+  --text-dim: rgba(236, 238, 242, 0.34);
+  --accent: #9ecbe8;
+  --accent-bright: #cfe8fb;
+  --accent-glow: rgba(158, 203, 232, 0.35);
 }
 
 @theme inline {
   --color-background: var(--bg);
   --color-foreground: var(--text);
   --color-accent: var(--accent);
-  --color-accent-bright: var(--accent-bright);
-  --color-amber: var(--amber);
-  --color-muted: var(--text-muted);
-  --font-picnic: 'PicNic', 'Space Grotesk', sans-serif;
-  --font-body: 'Inter', 'Space Grotesk', sans-serif;
-  --font-sans: 'Inter', 'Space Grotesk', sans-serif;
+  --font-display: var(--font-syne), "Space Grotesk", sans-serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-space), "Inter", sans-serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+/* Keep in @layer base so it never overrides Tailwind spacing utilities.
+   (Tailwind preflight already resets margins/padding.) */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
 }
 
 html {
@@ -56,25 +46,25 @@ html {
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'Inter', 'Space Grotesk', sans-serif;
+  font-family: var(--font-inter), system-ui, sans-serif;
   overflow-x: hidden;
   min-height: 100dvh;
 }
 
+/* ── Film grain overlay ────────────────────────────── */
+
 body::after {
-  content: '';
+  content: "";
   position: fixed;
   inset: -50%;
   width: 200%;
   height: 200%;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  opacity: 0.038;
+  opacity: 0.035;
   pointer-events: none;
   z-index: 9999;
   animation: grain-drift 8s steps(10) infinite;
 }
-
-/* ── Keyframes ─────────────────────────────────────── */
 
 @keyframes grain-drift {
   0%   { transform: translate(0, 0); }
@@ -89,146 +79,93 @@ body::after {
   90%  { transform: translate(-6%, 5%); }
 }
 
-@keyframes orb-pulse-a {
-  0%, 100% { transform: scale(1) translate(0, 0); opacity: 0.45; }
-  33%       { transform: scale(1.12) translate(2%, -3%); opacity: 0.65; }
-  66%       { transform: scale(0.92) translate(-1%, 2%); opacity: 0.38; }
-}
-
-@keyframes orb-pulse-b {
-  0%, 100% { transform: scale(1.05) translate(0, 0); opacity: 0.35; }
-  40%       { transform: scale(0.9) translate(-3%, 2%); opacity: 0.55; }
-  70%       { transform: scale(1.15) translate(1%, -2%); opacity: 0.42; }
-}
-
-@keyframes orb-pulse-c {
-  0%, 100% { transform: scale(0.95) translate(0, 0); opacity: 0.4; }
-  50%       { transform: scale(1.2) translate(2%, 3%); opacity: 0.6; }
-}
-
-@keyframes float-particle {
-  0%   { transform: translateY(0) translateX(0); opacity: 0; }
-  8%   { opacity: 0.8; }
-  92%  { opacity: 0.6; }
-  100% { transform: translateY(-120px) translateX(15px); opacity: 0; }
-}
-
-@keyframes eq-bar-active {
-  0%, 100% { transform: scaleY(0.15); }
-  50%       { transform: scaleY(1); }
-}
-
-@keyframes eq-bar-idle {
-  0%, 100% { transform: scaleY(0.25); }
-  50%       { transform: scaleY(0.45); }
-}
-
-@keyframes btn-glow-idle {
-  0%, 100% { box-shadow: 0 0 6px rgba(126, 200, 227, 0.08), inset 0 0 0 1px rgba(126, 200, 227, 0.15); }
-  50%       { box-shadow: 0 0 14px rgba(126, 200, 227, 0.18), inset 0 0 0 1px rgba(126, 200, 227, 0.25); }
-}
-
-@keyframes badge-pulse {
-  0%, 100% { box-shadow: 0 0 6px var(--amber-glow); }
-  50%       { box-shadow: 0 0 14px var(--amber-glow), 0 0 24px rgba(232, 168, 76, 0.2); }
-}
-
-@keyframes scanlines-drift {
-  0%   { background-position: 0 0; }
-  100% { background-position: 0 100px; }
-}
-
-/* ── Equalizer bars ────────────────────────────────── */
-
-.eq-bars {
-  display: flex;
-  align-items: flex-end;
-  gap: 2px;
-  height: 18px;
-  flex-shrink: 0;
-}
-
-.eq-bar {
-  width: 3px;
-  border-radius: 1px;
-  background: var(--accent);
-  transform-origin: bottom center;
-  animation: eq-bar-idle 1.4s ease-in-out infinite;
-}
-
-.eq-bar:nth-child(1) { height: 40%; animation-delay: 0ms; }
-.eq-bar:nth-child(2) { height: 75%; animation-delay: 180ms; }
-.eq-bar:nth-child(3) { height: 55%; animation-delay: 90ms; }
-.eq-bar:nth-child(4) { height: 90%; animation-delay: 270ms; }
-.eq-bar:nth-child(5) { height: 50%; animation-delay: 135ms; }
-
-.eq-bars.active .eq-bar {
-  animation-name: eq-bar-active;
-  animation-duration: 0.5s;
-}
-
-/* ── Reactive card idle glow ───────────────────────── */
-
-.reactive-card {
-  animation: btn-glow-idle 3s ease-in-out infinite;
-}
-
-.reactive-card.amber-card {
-  animation: badge-pulse 2s ease-in-out infinite;
-}
-
-/* ── Scan line overlay (video hero) ────────────────── */
-
-.scanlines {
-  background-image: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 0, 0, 0.12) 2px,
-    rgba(0, 0, 0, 0.12) 4px
-  );
-  animation: scanlines-drift 6s linear infinite;
-}
-
 /* ── Typography ────────────────────────────────────── */
 
-.font-picnic {
-  font-family: 'PicNic', 'Space Grotesk', sans-serif;
-  font-weight: normal;
-  letter-spacing: 0.02em;
+.font-display {
+  font-family: var(--font-syne), "Space Grotesk", sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
-.text-glow-accent {
-  text-shadow: 0 0 30px rgba(126, 200, 227, 0.6), 0 0 60px rgba(126, 200, 227, 0.3);
+.font-label {
+  font-family: var(--font-space), "Inter", sans-serif;
 }
 
-/* ── Release cards (double-bezel floating cards) ──── */
+/* Liquid-chrome bevel — the signature. Use on large display headings.
+   Two layers: a diagonal glare (parked off-screen right) over a static
+   vertical bevel. The bevel is horizontally uniform, so sweeping the
+   background-position moves only the glare, not the bevel. */
+.chrome-text {
+  background-image:
+    linear-gradient(
+      100deg,
+      transparent 36%,
+      rgba(255, 255, 255, 0.9) 50%,
+      transparent 64%
+    ),
+    linear-gradient(
+      180deg,
+      #ffffff 0%,
+      #dfe6ee 20%,
+      #96a0b0 44%,
+      #ffffff 50%,
+      #c2cad6 56%,
+      #79818f 78%,
+      #eef3f9 100%
+    );
+  background-size: 220% 100%, 100% 100%;
+  background-position: 150% 0, 0 0;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.55));
+}
+
+/* One-shot glare sweep, added when the heading scrolls into view */
+.chrome-sweep {
+  animation: chrome-sweep 2.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.15s both;
+}
+
+@keyframes chrome-sweep {
+  from { background-position: 150% 0, 0 0; }
+  to   { background-position: -60% 0, 0 0; }
+}
+
+/* ── Cards — dark glass with metallic bezel ───────── */
 
 .release-card-outer {
-  background: rgba(0, 0, 0, 0.035);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.07),
+    rgba(255, 255, 255, 0.02)
+  );
   border-radius: 15px;
-  border: 1px solid rgba(0, 0, 0, 0.07);
+  border: 1px solid var(--border);
   padding: 3px;
   box-shadow:
-    0 4px 20px rgba(72, 60, 48, 0.10),
-    0 1px 4px rgba(72, 60, 48, 0.07);
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 8px 30px rgba(0, 0, 0, 0.5);
   transition:
     box-shadow 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-    transform 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    border-color 0.38s ease;
 }
 
 .release-card-outer:hover {
+  border-color: var(--border-hover);
   box-shadow:
-    0 10px 36px rgba(72, 60, 48, 0.16),
-    0 2px 8px rgba(72, 60, 48, 0.10);
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 14px 44px rgba(0, 0, 0, 0.6),
+    0 0 26px var(--accent-glow);
   transform: translateY(-2px);
 }
 
 .release-card-inner {
-  background: rgba(255, 253, 250, 0.94);
+  background: var(--bg-elev);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.95);
 }
 
 /* ── Demo Drop form inputs ────────────────────────── */
@@ -237,21 +174,21 @@ body::after {
   display: block;
   font-size: 12px;
   font-weight: 500;
-  color: rgba(26, 20, 14, 0.52);
-  letter-spacing: 0.01em;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
   margin-bottom: 6px;
-  font-family: 'Inter', 'Space Grotesk', sans-serif;
+  font-family: var(--font-space), "Inter", sans-serif;
 }
 
 .demo-input {
   width: 100%;
   padding: 11px 14px;
-  background: rgba(255, 253, 250, 0.55);
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 14px;
-  color: #1a1a1a;
-  font-family: 'Inter', 'Space Grotesk', sans-serif;
+  color: var(--text);
+  font-family: var(--font-inter), system-ui, sans-serif;
   outline: none;
   transition:
     border-color 0.2s ease,
@@ -261,21 +198,21 @@ body::after {
 }
 
 .demo-input::placeholder {
-  color: rgba(26, 20, 14, 0.28);
+  color: var(--text-dim);
 }
 
 .demo-input:focus {
-  border-color: rgba(0, 0, 0, 0.28);
-  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
-  background: rgba(255, 253, 250, 0.9);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .demo-input.has-error {
-  border-color: rgba(180, 40, 40, 0.45);
+  border-color: rgba(255, 95, 95, 0.5);
 }
 
 .demo-input.has-error:focus {
-  box-shadow: 0 0 0 3px rgba(180, 40, 40, 0.07);
+  box-shadow: 0 0 0 3px rgba(255, 95, 95, 0.12);
 }
 
 textarea.demo-input {
@@ -286,15 +223,83 @@ textarea.demo-input {
 
 .demo-error-msg {
   font-size: 11px;
-  color: rgba(155, 28, 28, 0.9);
+  color: #ff8a8a;
   margin-top: 4px;
   letter-spacing: 0.01em;
-  font-family: 'Inter', 'Space Grotesk', sans-serif;
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+/* ── Photo marquee — analog film strip ─────────────── */
+
+.marquee-row {
+  overflow: hidden;
+  /* fade the strip out toward both edges */
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 7%,
+    #000 93%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 7%,
+    #000 93%,
+    transparent
+  );
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation-name: marquee-scroll;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+.marquee-row:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.marquee-photo {
+  height: clamp(150px, 19vw, 230px);
+  width: auto;
+  flex-shrink: 0;
+  margin-right: 16px;
+  border: 5px solid #f4f2ec;
+  border-radius: 2px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
 }
 
 /* ── Scrollbar ─────────────────────────────────────── */
 
-::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: rgba(126, 200, 227, 0.25); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(126, 200, 227, 0.5); }
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ── Accessibility ─────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  body::after {
+    animation: none;
+  }
+}

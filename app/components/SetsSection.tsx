@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, type Variants } from "framer-motion";
+import SectionHeading from "./SectionHeading";
 
 const SETS = [
   {
@@ -38,30 +39,17 @@ export default function SetsSection() {
     <section
       id="sets"
       className="relative"
-      style={{ background: "#c3bfb9", paddingTop: "6rem", paddingBottom: "6rem" }}
+      style={{ background: "var(--bg)", paddingTop: "6rem", paddingBottom: "6rem" }}
     >
       <div
         className="absolute top-0 left-0 right-0 h-px"
         style={{
-          background: "linear-gradient(90deg, transparent, rgba(0,0,0,0.13), transparent)",
+          background: "linear-gradient(90deg, transparent, var(--border), transparent)",
         }}
         aria-hidden="true"
       />
       <div className="px-6 md:px-8" style={{ maxWidth: "1000px", marginLeft: "auto", marginRight: "auto" }}>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.65, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="mb-10 md:mb-12 text-center"
-        >
-          <h2
-            className="font-picnic leading-none"
-            style={{ fontSize: "clamp(2rem, 6vw, 3.5rem)", color: "#1a1a1a" }}
-          >
-            Sets
-          </h2>
-        </motion.div>
+        <SectionHeading>Sets</SectionHeading>
 
         <motion.div
           className="flex flex-col"

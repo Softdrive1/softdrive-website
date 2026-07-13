@@ -8,7 +8,7 @@ import * as THREE from "three";
 /* ── Scroll-reactive hard drive ─────────────────────── */
 
 function HardDriveModel() {
-  const { scene } = useGLTF("/models/harddrive.glb");
+  const { scene } = useGLTF("/models/softdrive.glb");
   const groupRef = useRef<THREE.Group>(null);
   const scrollVelRef = useRef(0);
   const lastScrollYRef = useRef(0);
@@ -24,7 +24,7 @@ function HardDriveModel() {
   useEffect(() => {
     const onScroll = () => {
       const dy = window.scrollY - lastScrollYRef.current;
-      scrollVelRef.current += dy * 0.004;
+      scrollVelRef.current += dy * 0.0008;
       lastScrollYRef.current = window.scrollY;
     };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -39,7 +39,7 @@ function HardDriveModel() {
     groupRef.current.rotation.y += scrollVelRef.current;
     scrollVelRef.current *= 0.86;
     // Subtle tilt on X from scroll position
-    const targetX = lastScrollYRef.current * 0.0006;
+    const targetX = lastScrollYRef.current * 0.0002;
     groupRef.current.rotation.x = THREE.MathUtils.lerp(
       groupRef.current.rotation.x,
       targetX,
@@ -76,7 +76,7 @@ function LoadingBox() {
 export default function HardDriveScene() {
   return (
     <Canvas
-      camera={{ position: [0, 1, 6], fov: 45 }}
+      camera={{ position: [0, 0.25, 6], fov: 45 }}
       gl={{ antialias: true, alpha: true }}
       dpr={[1, 1.5]}
     >

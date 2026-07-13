@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useState } from "react";
+import SectionHeading from "./SectionHeading";
 
 interface FormFields {
   artistName: string;
@@ -104,12 +105,12 @@ export default function DemoDropSection() {
     <section
       id="demos"
       className="relative"
-      style={{ background: "#c3bfb9", paddingTop: "6rem", paddingBottom: "9rem" }}
+      style={{ background: "var(--bg)", paddingTop: "6rem", paddingBottom: "9rem" }}
     >
       <div
         className="absolute top-0 left-0 right-0 h-px"
         style={{
-          background: "linear-gradient(90deg, transparent, rgba(0,0,0,0.13), transparent)",
+          background: "linear-gradient(90deg, transparent, var(--border), transparent)",
         }}
         aria-hidden="true"
       />
@@ -119,31 +120,9 @@ export default function DemoDropSection() {
         style={{ maxWidth: "1000px", marginLeft: "auto", marginRight: "auto" }}
       >
         {/* Heading */}
-        <motion.div
-          className="mb-10 md:mb-12 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.65, ease: [0.25, 0.46, 0.45, 0.94] }}
-        >
-          <h2
-            className="font-picnic leading-none"
-            style={{ fontSize: "clamp(2rem, 6vw, 3.5rem)", color: "#1a1a1a" }}
-          >
-            Demo Drop
-          </h2>
-          <p
-            style={{
-              marginTop: "14px",
-              fontSize: "15px",
-              color: "rgba(26,20,14,0.48)",
-              fontStyle: "italic",
-              lineHeight: 1.5,
-            }}
-          >
-            Send us your tracks. We listen to everything.
-          </p>
-        </motion.div>
+        <SectionHeading sub="Send us your tracks. We listen to everything.">
+          Demo Drop
+        </SectionHeading>
 
         {/* Form card */}
         <motion.div
@@ -162,17 +141,16 @@ export default function DemoDropSection() {
                   style={{ paddingTop: "16px", paddingBottom: "16px" }}
                 >
                   <p
-                    className="font-picnic"
+                    className="font-display chrome-text"
                     style={{
                       fontSize: "clamp(1.25rem, 4vw, 1.75rem)",
-                      color: "#1a1a1a",
                       lineHeight: 1.2,
                       marginBottom: "12px",
                     }}
                   >
                     Thanks — we got your track.
                   </p>
-                  <p style={{ fontSize: "14px", color: "rgba(26,20,14,0.5)" }}>
+                  <p style={{ fontSize: "14px", color: "var(--text-muted)" }}>
                     We&apos;ll be in touch.
                   </p>
                 </div>
@@ -194,7 +172,7 @@ export default function DemoDropSection() {
                     {/* Artist Name */}
                     <div>
                       <label htmlFor="artistName" className="demo-label">
-                        Artist Name <span style={{ color: "rgba(26,20,14,0.35)" }}>*</span>
+                        Artist Name <span style={{ color: "var(--text-dim)" }}>*</span>
                       </label>
                       <input
                         id="artistName"
@@ -214,7 +192,7 @@ export default function DemoDropSection() {
                     {/* Email */}
                     <div>
                       <label htmlFor="email" className="demo-label">
-                        Email <span style={{ color: "rgba(26,20,14,0.35)" }}>*</span>
+                        Email <span style={{ color: "var(--text-dim)" }}>*</span>
                       </label>
                       <input
                         id="email"
@@ -234,7 +212,7 @@ export default function DemoDropSection() {
                     {/* Track Title */}
                     <div>
                       <label htmlFor="trackTitle" className="demo-label">
-                        Track Title <span style={{ color: "rgba(26,20,14,0.35)" }}>*</span>
+                        Track Title <span style={{ color: "var(--text-dim)" }}>*</span>
                       </label>
                       <input
                         id="trackTitle"
@@ -253,7 +231,7 @@ export default function DemoDropSection() {
                     {/* Track Link */}
                     <div>
                       <label htmlFor="trackLink" className="demo-label">
-                        Link to Track <span style={{ color: "rgba(26,20,14,0.35)" }}>*</span>
+                        Link to Track <span style={{ color: "var(--text-dim)" }}>*</span>
                       </label>
                       <input
                         id="trackLink"
@@ -308,14 +286,18 @@ export default function DemoDropSection() {
                           fontSize: "13px",
                           fontWeight: 600,
                           letterSpacing: "0.01em",
-                          background: submitting ? "rgba(26,26,26,0.5)" : "#1a1a1a",
-                          color: "#fff",
+                          background: submitting
+                            ? "rgba(255,255,255,0.45)"
+                            : "linear-gradient(180deg, #ffffff, #d7dde5)",
+                          color: "#08080b",
                           border: "none",
                           cursor: submitting ? "not-allowed" : "pointer",
-                          boxShadow: submitting ? "none" : "0 2px 8px rgba(0,0,0,0.18)",
+                          boxShadow: submitting
+                            ? "none"
+                            : "0 2px 16px rgba(158,203,232,0.28)",
                           transition:
                             "opacity 0.25s, transform 0.25s cubic-bezier(0.25,0.46,0.45,0.94), background 0.2s",
-                          fontFamily: "'Inter', 'Space Grotesk', sans-serif",
+                          fontFamily: "var(--font-inter), system-ui, sans-serif",
                         }}
                         onMouseEnter={(e) => {
                           if (!submitting) {
@@ -335,7 +317,7 @@ export default function DemoDropSection() {
                               width: "20px",
                               height: "20px",
                               borderRadius: "50%",
-                              background: "rgba(255,255,255,0.14)",
+                              background: "rgba(0,0,0,0.12)",
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
@@ -356,9 +338,9 @@ export default function DemoDropSection() {
                       <p
                         style={{
                           fontSize: "11px",
-                          color: "rgba(26,20,14,0.35)",
+                          color: "var(--text-dim)",
                           lineHeight: 1.5,
-                          fontFamily: "'Inter', 'Space Grotesk', sans-serif",
+                          fontFamily: "var(--font-inter), system-ui, sans-serif",
                         }}
                       >
                         By submitting, you agree that your data will be processed

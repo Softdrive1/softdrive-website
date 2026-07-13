@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FaSpotify,
@@ -67,45 +68,30 @@ function scrollToSection(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 }
 
-/* RA logo — falls back to "RA" text if /public/ra.png is missing */
+/* Resident Advisor — crisp text monogram (no bitmap, inherits currentColor) */
 function RAIcon({ size }: { size: number }) {
-  const [err, setErr] = useState(false);
-  if (err) {
-    return (
-      <span
-        style={{
-          fontSize: "9px",
-          fontWeight: 800,
-          letterSpacing: "0.06em",
-          display: "block",
-          lineHeight: 1,
-          color: "currentColor",
-        }}
-      >
-        RA
-      </span>
-    );
-  }
   return (
-    <img
-      src="/ra.png"
-      alt="RA"
-      width={size}
-      height={size}
-      onError={() => setErr(true)}
+    <span
+      className="font-label"
+      aria-hidden="true"
       style={{
-        objectFit: "contain",
+        fontSize: size * 0.82,
+        fontWeight: 700,
+        letterSpacing: "-0.03em",
+        lineHeight: 1,
         display: "block",
-        filter: "brightness(0) invert(1)",
+        color: "currentColor",
       }}
-    />
+    >
+      RA
+    </span>
   );
 }
 
 function SocialIconLink({
   item,
   iconSize,
-  baseColor = "rgba(255,255,255,0.42)",
+  baseColor = "rgba(255,255,255,0.55)",
 }: {
   item: SocialItem;
   iconSize: number;
@@ -175,11 +161,14 @@ export default function Navbar() {
   return (
     <>
       {/* ── Main bar ──────────────────────────────────── */}
-      <nav
+      <motion.nav
         className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-8"
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
         style={{
           height: "60px",
-          background: scrolled ? "rgba(10,10,15,0.9)" : "transparent",
+          background: scrolled ? "rgba(10,10,15,0.5)" : "transparent",
           backdropFilter: scrolled ? "blur(20px) saturate(1.3)" : "none",
           WebkitBackdropFilter: scrolled
             ? "blur(20px) saturate(1.3)"
@@ -202,16 +191,15 @@ export default function Navbar() {
               cursor: "pointer",
             }}
           >
-            <span
-              className="font-picnic select-none"
-              style={{
-                fontSize: "1.05rem",
-                letterSpacing: "0.07em",
-                color: "rgba(255,255,255,0.92)",
-              }}
-            >
-              SOFTDRIVE
-            </span>
+            <Image
+              src="/logo-nav.png"
+              alt="Softdrive"
+              width={353}
+              height={120}
+              priority
+              className="select-none"
+              style={{ height: "44px", width: "auto", display: "block" }}
+            />
           </button>
 
           {/* Section links — desktop only */}
@@ -257,7 +245,7 @@ export default function Navbar() {
           {/* Social icons — desktop only */}
           <div className="hidden md:flex items-center">
             {SOCIAL_LINKS.map((item) => (
-              <SocialIconLink key={item.id} item={item} iconSize={14} />
+              <SocialIconLink key={item.id} item={item} iconSize={16} />
             ))}
           </div>
 
@@ -315,7 +303,7 @@ export default function Navbar() {
             />
           </button>
         </div>
-      </nav>
+      </motion.nav>
 
       {/* ── Mobile overlay menu ──────────────────────── */}
       <AnimatePresence>
@@ -342,14 +330,13 @@ export default function Navbar() {
                   transition={{ delay: i * 0.06 + 0.04, duration: 0.28 }}
                 >
                   <button
-                    className="font-picnic cursor-pointer"
+                    className="font-display cursor-pointer"
                     style={{
                       background: "none",
                       border: "none",
                       padding: 0,
                       fontSize: "clamp(2rem, 8vw, 3rem)",
                       color: "rgba(255,255,255,0.9)",
-                      fontFamily: "inherit",
                     }}
                     onClick={() => {
                       scrollToSection(id);

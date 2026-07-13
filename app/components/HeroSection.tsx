@@ -74,7 +74,12 @@ export default function HeroSection() {
       />
 
       {/* Hero logo — spinning chrome WebM where supported, PNG fallback elsewhere */}
-      <div className="relative z-20">
+      <motion.div
+        className="relative z-20"
+        initial={{ opacity: 0, scale: 1.06, filter: "blur(10px)" }}
+        animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+        transition={{ duration: 1.1, ease: [0.22, 0.61, 0.36, 1], delay: 0.15 }}
+      >
         <div style={{ width: "min(420px, 82vw)" }}>
           {useVideoLogo ? (
             <video
@@ -103,25 +108,6 @@ export default function HeroSection() {
             />
           )}
         </div>
-      </div>
-
-      {/* Scroll indicator */}
-      <motion.div
-        className="absolute bottom-10 inset-x-0 z-20 flex flex-col items-center gap-2 pointer-events-none"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.65 }}
-        transition={{ delay: 1.8, duration: 1.2 }}
-      >
-        <div
-          className="w-px h-8"
-          style={{ background: "linear-gradient(to bottom, transparent, rgba(255,255,255,0.85))" }}
-        />
-        <span
-          className="text-[10px] tracking-[0.3em] uppercase font-medium"
-          style={{ color: "rgba(255,255,255,0.85)" }}
-        >
-          Scroll
-        </span>
       </motion.div>
     </section>
   );
