@@ -20,7 +20,7 @@ Working doc for the Dark-Chrome redesign (Emiliano + Claude). Pick up here in a 
 - `Dither/Dither.tsx` — **neu**: React-Bits Dither-Wave als BG der 3D-Sektion, auf Single-Pass-Shader umgebaut (kein postprocessing-Paket). ⚠️ R3F v9 klont das `uniforms`-Prop → Uniforms NUR über `matRef.current.uniforms` mutieren, sonst friert der Effekt nach 1 Frame ein
 - `components/SectionHeading.tsx` — **neu**: Chrome-Heading + Shimmer-on-view (in allen 4 Content-Sektionen genutzt; blaue Eyebrows auf Emilianos Wunsch entfernt)
 - `Navbar.tsx` — Logo-Bild `public/logo-nav.png` (aus `Softdrive Druck 2.png` zugeschnitten/verkleinert, 36 KB) statt Text-Wordmark, Nav-Links, Social-Icons (react-icons SVG; RA = Text-Monogramm, kein PNG mehr), Mobile-Menu; Intro-Fade
-- `HeroSection.tsx` — Video-BG (crossfade) + drehendes Chrome-Logo (WebM, PNG-Fallback iOS/Safari); orchestrierte Intro (Logo baut sich weich auf)
+- `HeroSection.tsx` — Video-BG (crossfade) + drehendes Chrome-Logo; transparentes Video wird **je Engine** gewählt (UA-Sniffing): Safari/iOS → HEVC-alpha `public/softdrive-logo.mp4`, Rest → VP9-alpha `public/softdrive-logo.webm` (jede Engine zeigt das andere Format als schwarzen Kasten). PNG (`/logo.png`) = Poster + `onError`-Fallback. Orchestrierte Intro
 - `HardDriveScene.tsx` / `HardDriveSection.tsx` — R3F-Canvas, lädt `public/models/softdrive.glb` (eigenes 3D-Modell der beiden, Draco + WebP)
 - `ReleasesSection.tsx` / `SetsSection.tsx` — Spotify/SoundCloud-Embeds in Dark-Glass-Cards
 - `AboutSection.tsx` — Bio (Oliver & Bennet). Stats-Reihe wurde entfernt.
@@ -33,7 +33,8 @@ Working doc for the Dark-Chrome redesign (Emiliano + Claude). Pick up here in a 
 ## Offene To-Dos
 1. **Artist-Scans im About** (Plan B): Emiliano liefert Extra-Ordner mit den richtigen Artist-Pics (Reihenfolge über Dateinamen) → verkleinern, als schief gedrehte Scans mit Parallax um den Bio-Text. Das Neon-Duo-Portrait (`public/photos/duo-blur.jpg`) ist schon vorbereitet und noch nirgends eingebaut.
 2. **SoundCloud-Player** sind weiß (kein Dark-Mode) → später Custom Dark-Player. Bewusst zurückgestellt.
-3. Emiliano gibt Bauchgefühl-Feedback nach Live-Sichtung (Desktop + Handy), dann committen + pushen.
+3. **SoundCloud-Embeds erscheinen nicht bei allen Besuchern** (offen, 13.07.2026): Bei Bennet (iPhone Safari) werden die SoundCloud-`iframe`s als leere Zeilen dargestellt, das Spotify-Embed daneben lädt normal; bei seinem Freund (ebenfalls iPhone Safari) erscheinen sie. Kein CSP/Header, iframes serverseitig nicht blockiert, ausgeliefertes HTML identisch → clientseitig. Verdacht Content-/DNS-Blocker, ABER Bennet sieht SoundCloud-Player auf anderen Websites → Ursache noch unklar. Zu prüfen: Device-Cache (alte Version ohne Embeds), track-spezifische Embed-Restriktion, Safari-Tracking-Settings, WLAN-DNS. Mögliche Absicherung: sichtbarer „▶ Auf SoundCloud anhören"-Fallback-Link unter jedem Player, damit Besucher mit Blocker den Track trotzdem erreichen.
+4. Emiliano gibt Bauchgefühl-Feedback nach Live-Sichtung (Desktop + Handy), dann committen + pushen.
 
 ## Dev / Preview
 - `npm run dev` → http://localhost:3000
