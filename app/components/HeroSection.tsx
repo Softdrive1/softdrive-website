@@ -8,6 +8,26 @@ export default function HeroSection() {
   const [loaded, setLoaded] = useState<[boolean, boolean]>([false, false]);
   const [active, setActive] = useState(0);
 
+  // Default to the PNG so iOS/Safari (which can't render WebM alpha and would
+  // show a black box) never even mount the video. Only upgrade to the spinning
+  // WebM on engines that render alpha transparency correctly.
+  const [useVideoLogo, setUseVideoLogo] = useState(false);
+
+  useEffect(() => {
+    if (typeof navigator === "undefined") return;
+    const ua = navigator.userAgent;
+    const isIOS =
+      /iP(hone|od|ad)/.test(ua) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    // Safari (desktop) UA contains "Safari" but not Chrome/Chromium/Firefox-on-iOS.
+    const isSafari = /^((?!chrome|android|crios|fxios|chromium).)*safari/i.test(ua);
+    if (isIOS || isSafari) return;
+    // Defer the PNG→WebM upgrade to a callback so the initial client render still
+    // matches the server (PNG), avoiding a hydration mismatch.
+    const raf = requestAnimationFrame(() => setUseVideoLogo(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
   useEffect(() => {
     if (!loaded[0] || !loaded[1]) return;
     const id = setInterval(() => setActive((v) => (v === 0 ? 1 : 0)), 12000);
@@ -53,17 +73,35 @@ export default function HeroSection() {
         }}
       />
 
-      {/* Rotating logo PNG */}
-      <div className="relative z-20" style={{ perspective: "1000px" }}>
-        <div className="logo-rotating" style={{ width: "min(420px, 82vw)" }}>
-          <Image
-            src="/logo.png"
-            alt="Softdrive"
-            width={840}
-            height={473}
-            priority
-            style={{ width: "100%", height: "auto", display: "block" }}
-          />
+      {/* Hero logo — spinning chrome WebM where supported, PNG fallback elsewhere */}
+      <div className="relative z-20">
+        <div style={{ width: "min(420px, 82vw)" }}>
+          {useVideoLogo ? (
+            <video
+              src="/softdrive-logo.webm"
+              poster="/logo.png"
+              autoPlay
+              loop
+              muted
+              playsInline
+              onError={() => setUseVideoLogo(false)}
+              style={{
+                width: "100%",
+                height: "auto",
+                display: "block",
+                background: "transparent",
+              }}
+            />
+          ) : (
+            <Image
+              src="/logo.png"
+              alt="Softdrive"
+              width={840}
+              height={473}
+              priority
+              style={{ width: "100%", height: "auto", display: "block" }}
+            />
+          )}
         </div>
       </div>
 

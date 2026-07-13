@@ -202,19 +202,6 @@ body::after {
   text-shadow: 0 0 30px rgba(126, 200, 227, 0.6), 0 0 60px rgba(126, 200, 227, 0.3);
 }
 
-/* ── Logo rotation (hero) ──────────────────────────── */
-
-@keyframes logo-spin {
-  from { transform: rotateY(0deg); }
-  to   { transform: rotateY(360deg); }
-}
-
-.logo-rotating {
-  animation: logo-spin 11s linear infinite;
-  transform-style: preserve-3d;
-  transform-origin: center center;
-}
-
 /* ── Release cards (double-bezel floating cards) ──── */
 
 .release-card-outer {
