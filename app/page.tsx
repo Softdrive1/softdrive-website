@@ -1,4 +1,5 @@
 import Navbar from "./components/Navbar";
+import DitherBackground from "./components/DitherBackground";
 import HeroSection from "./components/HeroSection";
 import HardDriveSection from "./components/HardDriveSection";
 import ReleasesSection from "./components/ReleasesSection";
@@ -11,17 +12,20 @@ import Footer from "./components/Footer";
 export default function Home() {
   return (
     <>
-      <Navbar />
-      <main>
-        <HeroSection />
-        <HardDriveSection />
-        <ReleasesSection />
-        <SetsSection />
-        <PhotoMarquee />
-        <AboutSection />
-        <DemoDropSection />
-      </main>
-      <Footer />
+      <DitherBackground />
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <Navbar />
+        <main>
+          <HeroSection />
+          <HardDriveSection />
+          <ReleasesSection />
+          <SetsSection />
+          <PhotoMarquee />
+          <AboutSection />
+          <DemoDropSection />
+        </main>
+        <Footer />
+      </div>
     </>
   );
 }

@@ -10,7 +10,7 @@
 /* eslint-disable react-hooks/immutability, react-hooks/exhaustive-deps */
 
 import { useRef, useEffect, useMemo } from 'react';
-import { Canvas, useFrame, useThree, ThreeEvent } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 
 import './Dither.css';
@@ -158,6 +158,8 @@ interface DitheredWavesProps {
   waveFrequency: number;
   waveAmplitude: number;
   waveColor: [number, number, number];
+  waveColors?: [number, number, number][];
+  colorCycleSeconds: number;
   colorNum: number;
   pixelSize: number;
   disableAnimation: boolean;
@@ -170,6 +172,8 @@ function DitheredWaves({
   waveFrequency,
   waveAmplitude,
   waveColor,
+  waveColors,
+  colorCycleSeconds,
   colorNum,
   pixelSize,
   disableAnimation,
@@ -213,6 +217,13 @@ function DitheredWaves({
     }
   }, [size, gl]);
 
+  // Palette for the color cycle; built once (empty deps on purpose — the
+  // palette is config, not state).
+  const cycleColors = useMemo(
+    () => (waveColors ?? []).map((c) => new THREE.Color(...c)),
+    []
+  );
+
   const prevColor = useRef([...waveColor]);
   useFrame(({ clock }) => {
     const u = matRef.current?.uniforms as WaveUniforms | undefined;
@@ -228,7 +239,16 @@ function DitheredWaves({
     if (u.colorNum.value !== colorNum) u.colorNum.value = colorNum;
     if (u.pixelSize.value !== pixelSize) u.pixelSize.value = pixelSize;
 
-    if (!prevColor.current.every((v, i) => v === waveColor[i])) {
+    if (cycleColors.length > 1) {
+      // Drift through the palette: hold each color, then crossfade into the
+      // next (smoothstep keeps the hand-over soft at both ends).
+      const t = clock.getElapsedTime() / colorCycleSeconds;
+      const i = Math.floor(t) % cycleColors.length;
+      const next = (i + 1) % cycleColors.length;
+      let k = t - Math.floor(t);
+      k = k * k * (3 - 2 * k);
+      (u.waveColor.value as THREE.Color).lerpColors(cycleColors[i], cycleColors[next], k);
+    } else if (!prevColor.current.every((v, i) => v === waveColor[i])) {
       u.waveColor.value.set(...waveColor);
       prevColor.current = [...waveColor];
     }
@@ -241,19 +261,21 @@ function DitheredWaves({
     }
   });
 
-  const handlePointerMove = (e: ThreeEvent<PointerEvent>) => {
+  // Track the pointer on window level: as a fixed background layer the
+  // canvas sits behind the page content and never receives pointer events.
+  useEffect(() => {
     if (!enableMouseInteraction) return;
-    const rect = gl.domElement.getBoundingClientRect();
-    const dpr = gl.getPixelRatio();
-    mouseRef.current.set((e.clientX - rect.left) * dpr, (e.clientY - rect.top) * dpr);
-  };
+    const onPointerMove = (e: PointerEvent) => {
+      const rect = gl.domElement.getBoundingClientRect();
+      const dpr = gl.getPixelRatio();
+      mouseRef.current.set((e.clientX - rect.left) * dpr, (e.clientY - rect.top) * dpr);
+    };
+    window.addEventListener('pointermove', onPointerMove);
+    return () => window.removeEventListener('pointermove', onPointerMove);
+  }, [enableMouseInteraction, gl]);
 
   return (
-    <mesh
-      ref={mesh}
-      scale={[viewport.width, viewport.height, 1]}
-      onPointerMove={handlePointerMove}
-    >
+    <mesh ref={mesh} scale={[viewport.width, viewport.height, 1]}>
       <planeGeometry args={[1, 1]} />
       <shaderMaterial
         ref={matRef}
@@ -271,6 +293,10 @@ interface DitherProps {
   waveFrequency?: number;
   waveAmplitude?: number;
   waveColor?: [number, number, number];
+  /** Two or more colors: the wave crossfades through them in a loop. */
+  waveColors?: [number, number, number][];
+  /** Seconds per palette stop (hold + fade into the next color). */
+  colorCycleSeconds?: number;
   colorNum?: number;
   pixelSize?: number;
   disableAnimation?: boolean;
@@ -283,6 +309,8 @@ export default function Dither({
   waveFrequency = 3,
   waveAmplitude = 0.3,
   waveColor = [0.5, 0.5, 0.5],
+  waveColors,
+  colorCycleSeconds = 8,
   colorNum = 4,
   pixelSize = 2,
   disableAnimation = false,
@@ -301,6 +329,8 @@ export default function Dither({
         waveFrequency={waveFrequency}
         waveAmplitude={waveAmplitude}
         waveColor={waveColor}
+        waveColors={waveColors}
+        colorCycleSeconds={colorCycleSeconds}
         colorNum={colorNum}
         pixelSize={pixelSize}
         disableAnimation={disableAnimation}

@@ -105,7 +105,7 @@ export default function DemoDropSection() {
     <section
       id="demos"
       className="relative"
-      style={{ background: "var(--bg)", paddingTop: "6rem", paddingBottom: "9rem" }}
+      style={{ paddingTop: "6rem", paddingBottom: "9rem" }}
     >
       <div
         className="absolute top-0 left-0 right-0 h-px"

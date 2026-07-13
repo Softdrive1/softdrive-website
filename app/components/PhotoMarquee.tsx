@@ -19,15 +19,16 @@ const ROW_A: Photo[] = [
 ];
 
 const ROW_B: Photo[] = [
-  { src: "/photos/crowd-night-floor.jpg", w: 1200, h: 796 },
-  { src: "/photos/club-decks.jpg", w: 1200, h: 796 },
-  { src: "/photos/bw-crowd.jpg", w: 1200, h: 796 },
-  { src: "/photos/crowd-smoke.jpg", w: 1200, h: 796 },
-  { src: "/photos/bar-two.jpg", w: 795, h: 1200 },
-  { src: "/photos/crowd-openair.jpg", w: 796, h: 1200 },
-  { src: "/photos/duo-caps.jpg", w: 1200, h: 796 },
-  { src: "/photos/crowd-night-bar.jpg", w: 1200, h: 796 },
-  { src: "/photos/bw-decks.jpg", w: 1200, h: 796 },
+  { src: "/photos/duo-daylight.jpg", w: 1200, h: 796 },
+  { src: "/photos/container-openair.jpg", w: 1200, h: 796 },
+  { src: "/photos/bw-warehouse.jpg", w: 1200, h: 796 },
+  { src: "/photos/tiki-club.jpg", w: 1200, h: 796 },
+  { src: "/photos/openair-umbrellas.jpg", w: 796, h: 1200 },
+  { src: "/photos/tent-crowd.jpg", w: 1200, h: 796 },
+  { src: "/photos/bw-openair-decks.jpg", w: 1200, h: 796 },
+  { src: "/photos/duo-closeup.jpg", w: 1080, h: 1080 },
+  { src: "/photos/openair-jungle.jpg", w: 1200, h: 796 },
+  { src: "/photos/booth-crowd.jpg", w: 1200, h: 796 },
 ];
 
 function Strip({
@@ -72,7 +73,6 @@ export default function PhotoMarquee() {
     <section
       aria-label="Analog photos"
       style={{
-        background: "var(--bg)",
         paddingTop: "72px",
         paddingBottom: "72px",
         display: "flex",

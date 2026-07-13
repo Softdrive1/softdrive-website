@@ -39,7 +39,7 @@ export default function SetsSection() {
     <section
       id="sets"
       className="relative"
-      style={{ background: "var(--bg)", paddingTop: "6rem", paddingBottom: "6rem" }}
+      style={{ paddingTop: "6rem", paddingBottom: "6rem" }}
     >
       <div
         className="absolute top-0 left-0 right-0 h-px"
