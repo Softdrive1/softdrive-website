@@ -34,7 +34,7 @@ function HardDriveModel() {
   useFrame((_, delta) => {
     if (!groupRef.current) return;
     // Idle auto-rotation
-    groupRef.current.rotation.y += delta * 0.22;
+    groupRef.current.rotation.y += delta * 0.28;
     // Scroll-velocity boost (decays naturally)
     groupRef.current.rotation.y += scrollVelRef.current;
     scrollVelRef.current *= 0.86;
