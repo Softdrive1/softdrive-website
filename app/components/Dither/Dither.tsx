@@ -177,10 +177,13 @@ function DitheredWaves({
   mouseRadius
 }: DitheredWavesProps) {
   const mesh = useRef<THREE.Mesh>(null);
+  const matRef = useRef<THREE.ShaderMaterial>(null);
   const mouseRef = useRef(new THREE.Vector2());
   const { viewport, size, gl } = useThree();
 
-  // Created once; useFrame keeps the values in sync with the props.
+  // Initial values only: R3F *clones* the uniforms prop when it creates the
+  // material, so per-frame updates must go through matRef.current.uniforms —
+  // writing into this object would go nowhere.
   const waveUniforms = useMemo<WaveUniforms>(
     () => ({
       time: new THREE.Uniform(0),
@@ -199,18 +202,21 @@ function DitheredWaves({
   );
 
   useEffect(() => {
+    const u = matRef.current?.uniforms;
+    if (!u) return;
     const dpr = gl.getPixelRatio();
     const newWidth = Math.floor(size.width * dpr);
     const newHeight = Math.floor(size.height * dpr);
-    const currentRes = waveUniforms.resolution.value as THREE.Vector2;
+    const currentRes = u.resolution.value as THREE.Vector2;
     if (currentRes.x !== newWidth || currentRes.y !== newHeight) {
       currentRes.set(newWidth, newHeight);
     }
-  }, [size, gl, waveUniforms]);
+  }, [size, gl]);
 
   const prevColor = useRef([...waveColor]);
   useFrame(({ clock }) => {
-    const u = waveUniforms;
+    const u = matRef.current?.uniforms as WaveUniforms | undefined;
+    if (!u) return;
 
     if (!disableAnimation) {
       u.time.value = clock.getElapsedTime();
@@ -250,6 +256,7 @@ function DitheredWaves({
     >
       <planeGeometry args={[1, 1]} />
       <shaderMaterial
+        ref={matRef}
         glslVersion={THREE.GLSL3}
         vertexShader={waveVertexShader}
         fragmentShader={waveFragmentShader}
