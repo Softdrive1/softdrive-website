@@ -8,22 +8,25 @@ export default function HeroSection() {
   const [loaded, setLoaded] = useState<[boolean, boolean]>([false, false]);
   const [active, setActive] = useState(0);
 
-  // Default to the PNG so iOS/Safari (which can't render WebM alpha and would
-  // show a black box) never even mount the video. Only upgrade to the spinning
-  // WebM on engines that render alpha transparency correctly.
+  // Start on the PNG (matches SSR), then upgrade to the spinning logo video on
+  // the client. The two engines need different transparent-video formats and
+  // each mis-renders the other's as a black box, so we pick per engine rather
+  // than via <source> (Chrome-on-Mac can decode HEVC but drops its alpha).
   const [useVideoLogo, setUseVideoLogo] = useState(false);
+  const [logoSrc, setLogoSrc] = useState("/softdrive-logo.webm");
 
   useEffect(() => {
-    if (typeof navigator === "undefined") return;
     const ua = navigator.userAgent;
     const isIOS =
       /iP(hone|od|ad)/.test(ua) ||
       (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
     // Safari (desktop) UA contains "Safari" but not Chrome/Chromium/Firefox-on-iOS.
     const isSafari = /^((?!chrome|android|crios|fxios|chromium).)*safari/i.test(ua);
-    if (isIOS || isSafari) return;
-    // Defer the PNG→WebM upgrade to a callback so the initial client render still
-    // matches the server (PNG), avoiding a hydration mismatch.
+    // WebKit (all iOS browsers + desktop Safari) renders HEVC-with-alpha but not
+    // VP9-alpha WebM; every other engine is the reverse.
+    if (isIOS || isSafari) setLogoSrc("/softdrive-logo.mp4");
+    // Defer the PNG→video upgrade to a callback so the initial client render
+    // still matches the server (PNG), avoiding a hydration mismatch.
     const raf = requestAnimationFrame(() => setUseVideoLogo(true));
     return () => cancelAnimationFrame(raf);
   }, []);
@@ -83,7 +86,7 @@ export default function HeroSection() {
         <div style={{ width: "min(420px, 82vw)" }}>
           {useVideoLogo ? (
             <video
-              src="/softdrive-logo.webm"
+              src={logoSrc}
               poster="/logo.png"
               autoPlay
               loop
