@@ -1,6 +1,7 @@
 import Navbar from "./components/Navbar";
 import DitherBackground from "./components/DitherBackground";
 import HeroSection from "./components/HeroSection";
+import SoftdriveMarquee from "./components/SoftdriveMarquee";
 import HardDriveSection from "./components/HardDriveSection";
 import ReleasesSection from "./components/ReleasesSection";
 import SetsSection from "./components/SetsSection";
@@ -19,6 +20,7 @@ export default function Home() {
           <HeroSection />
           <HardDriveSection />
           <ReleasesSection />
+          <SoftdriveMarquee />
           <SetsSection />
           <PhotoMarquee />
           <AboutSection />
