@@ -14,6 +14,30 @@ export default function Footer() {
       >
         © 2026 Softdrive
       </p>
+      <p
+        className="font-label text-center"
+        style={{
+          marginTop: "10px",
+          fontSize: "11px",
+          color: "var(--text-dim)",
+          letterSpacing: "0.02em",
+        }}
+      >
+        “Chunky Synth” by{" "}
+        <a
+          href="https://skfb.ly/6UGXN"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            color: "inherit",
+            textDecoration: "underline",
+            textUnderlineOffset: "2px",
+          }}
+        >
+          MrEliptik
+        </a>
+        , CC BY 4.0
+      </p>
     </footer>
   );
 }

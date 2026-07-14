@@ -4,6 +4,7 @@ import HeroSection from "./components/HeroSection";
 import SoftdriveMarquee from "./components/SoftdriveMarquee";
 import HardDriveSection from "./components/HardDriveSection";
 import ReleasesSection from "./components/ReleasesSection";
+import SynthSection from "./components/SynthSection";
 import SetsSection from "./components/SetsSection";
 import PhotoMarquee from "./components/PhotoMarquee";
 import AboutSection from "./components/AboutSection";
@@ -20,6 +21,7 @@ export default function Home() {
           <HeroSection />
           <HardDriveSection />
           <ReleasesSection />
+          <SynthSection />
           <SoftdriveMarquee />
           <SetsSection />
           <PhotoMarquee />
