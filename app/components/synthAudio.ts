@@ -15,6 +15,57 @@ export const NUM_KEYS = 12;
 
 let ctx: AudioContext | null = null;
 
+function ensureCtx(): AudioContext | null {
+  if (!ctx) {
+    // iOS routes Web Audio through the "ambient" session by default, which
+    // the hardware mute switch silences entirely. Declaring the session as
+    // "playback" (iOS 17+) exempts it, like a music player.
+    const nav = navigator as Navigator & { audioSession?: { type: string } };
+    if (nav.audioSession) nav.audioSession.type = "playback";
+    const AC =
+      window.AudioContext ??
+      (window as unknown as { webkitAudioContext?: typeof AudioContext })
+        .webkitAudioContext;
+    if (!AC) return null;
+    ctx = new AC();
+  }
+  // iOS also parks the context in a non-standard "interrupted" state
+  // (phone call, Siri) — resume on anything that isn't running.
+  if (ctx.state !== "running") void ctx.resume();
+  return ctx;
+}
+
+let unlockInstalled = false;
+
+/** iOS Safari counts touchend — not touchstart, which pointerdown maps to
+ *  on touch devices — as the user gesture that may start audio, so the
+ *  resume inside `playKey` never unlocks the context on iPhone. Unlock on
+ *  the first touchend/pointerup instead (playing a silent buffer is what
+ *  actually flips iOS into the running state) and keep retrying until the
+ *  context runs. */
+export function installAudioUnlock() {
+  if (unlockInstalled || typeof window === "undefined") return;
+  unlockInstalled = true;
+  const cleanup = () => {
+    window.removeEventListener("touchend", unlock);
+    window.removeEventListener("pointerup", unlock);
+  };
+  const unlock = () => {
+    const c = ensureCtx();
+    if (!c) {
+      cleanup();
+      return;
+    }
+    const src = c.createBufferSource();
+    src.buffer = c.createBuffer(1, 1, c.sampleRate);
+    src.connect(c.destination);
+    src.start();
+    if (c.state === "running") cleanup();
+  };
+  window.addEventListener("touchend", unlock, { passive: true });
+  window.addEventListener("pointerup", unlock, { passive: true });
+}
+
 // Peak-normalize playback so the sample set has a consistent level.
 const TARGET_PEAK = 0.9;
 const MAX_GAIN = 3;
@@ -90,15 +141,7 @@ function ensureBuffer(key: number): Promise<Sample | null> {
 
 /** Play the sample for a key (1-based). Call from a pointer event only. */
 export function playKey(key: number) {
-  if (!ctx) {
-    const AC =
-      window.AudioContext ??
-      (window as unknown as { webkitAudioContext?: typeof AudioContext })
-        .webkitAudioContext;
-    if (!AC) return;
-    ctx = new AC();
-  }
-  if (ctx.state === "suspended") void ctx.resume();
+  if (!ensureCtx()) return;
 
   void ensureBuffer(key).then((sample) => {
     if (!sample) {

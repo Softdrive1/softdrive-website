@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import dynamic from "next/dynamic";
 import SectionHeading from "./SectionHeading";
-import { preloadSamples } from "./synthAudio";
+import { installAudioUnlock, preloadSamples } from "./synthAudio";
 
 // Always mounted, exactly like HardDriveSection — no lazy-load or
 // IntersectionObserver pause. That "protection" caused the stripe/flicker
@@ -18,6 +18,7 @@ const SynthScene = dynamic(() => import("./SynthScene"), {
 export default function SynthSection() {
   useEffect(() => {
     preloadSamples();
+    installAudioUnlock();
   }, []);
 
   return (

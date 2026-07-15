@@ -85,7 +85,7 @@ export default function HeroSection() {
         animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
         transition={{ duration: 1.1, ease: [0.22, 0.61, 0.36, 1], delay: 0.15 }}
       >
-        <div style={{ width: "min(420px, 82vw)" }}>
+        <div style={{ width: "min(504px, 98vw)" }}>
           {useVideoLogo ? (
             <video
               src={logoSrc}

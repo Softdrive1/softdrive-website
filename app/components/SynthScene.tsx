@@ -77,7 +77,7 @@ function SynthModel() {
     const dist = CAMERA_POS.length();
     const visibleWidth =
       2 * dist * Math.tan((CAMERA_FOV * Math.PI) / 360) * aspect;
-    const fill = aspect < 0.9 ? 0.95 : 0.62;
+    const fill = aspect < 0.9 ? 1.0 : 0.62;
     // Clamp hard: at scale ≤ 2 the model's half-length stays inside the
     // camera distance, so a bad measurement can never put the camera
     // inside the model (which renders as full-width color bands).
