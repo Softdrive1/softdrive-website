@@ -2,6 +2,7 @@
 
 import { motion, type Variants } from "framer-motion";
 import SectionHeading from "./SectionHeading";
+import SoundCloudPlayer from "./SoundCloudPlayer";
 
 const SETS = [
   {
@@ -15,10 +16,6 @@ const SETS = [
     scUrl: "https://soundcloud.com/softdrive/oster-version-2",
   },
 ];
-
-function scSrc(url: string) {
-  return `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%23ff5500&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&visual=false`;
-}
 
 const containerVariants: Variants = {
   hidden: {},
@@ -63,22 +60,7 @@ export default function SetsSection() {
             <motion.div key={set.id} variants={itemVariants}>
               <div className="release-card-outer">
                 <div className="release-card-inner">
-                  <iframe
-                    width="100%"
-                    height="120"
-                    style={{ border: "none", display: "block" }}
-                    allow="autoplay"
-                    src={scSrc(set.scUrl)}
-                    title={set.title}
-                  />
-                  <a
-                    className="sc-fallback font-label"
-                    href={set.scUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    ▶ Listen on SoundCloud
-                  </a>
+                  <SoundCloudPlayer url={set.scUrl} title={set.title} />
                 </div>
               </div>
             </motion.div>

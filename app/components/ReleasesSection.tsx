@@ -2,6 +2,8 @@
 
 import { motion, type Variants } from "framer-motion";
 import SectionHeading from "./SectionHeading";
+import SoundCloudPlayer from "./SoundCloudPlayer";
+import SpotifyPlayer from "./SpotifyPlayer";
 
 interface Release {
   id: string;
@@ -52,10 +54,6 @@ const RELEASES: Release[] = [
   },
 ];
 
-function scSrc(url: string) {
-  return `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%23ff5500&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&visual=false`;
-}
-
 const containerVariants: Variants = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.09 } },
@@ -105,37 +103,15 @@ export default function ReleasesSection() {
                   <div className="release-card-inner">
                     {release.spotifyId ? (
                       /* Symphony — Spotify embed (released) */
-                      <iframe
-                        width="100%"
-                        height="152"
-                        style={{ borderRadius: "12px", border: "none", display: "block" }}
-                        src={`https://open.spotify.com/embed/track/${release.spotifyId}?utm_source=generator`}
-                        frameBorder="0"
-                        allowFullScreen
-                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                        loading="lazy"
+                      <SpotifyPlayer
+                        trackId={release.spotifyId}
                         title={release.title}
                       />
                     ) : (
-                      /* SoundCloud iframe */
-                      <>
-                        <iframe
-                          width="100%"
-                          height="120"
-                          style={{ border: "none", display: "block" }}
-                          allow="autoplay"
-                          src={scSrc(release.scUrl!)}
-                          title={release.title}
-                        />
-                        <a
-                          className="sc-fallback font-label"
-                          href={release.scUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          ▶ Listen on SoundCloud
-                        </a>
-                      </>
+                      <SoundCloudPlayer
+                        url={release.scUrl!}
+                        title={release.title}
+                      />
                     )}
                   </div>
                 </div>

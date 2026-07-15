@@ -23,12 +23,15 @@ Working doc for the Dark-Chrome redesign (Emiliano + Claude). Pick up here in a 
 - `Navbar.tsx` — Logo-Bild `public/logo-nav.png` (aus `Softdrive Druck 2.png` zugeschnitten/verkleinert, 36 KB) statt Text-Wordmark, Nav-Links, Social-Icons (react-icons SVG; RA = Text-Monogramm, kein PNG mehr), Mobile-Menu; Intro-Fade
 - `HeroSection.tsx` — Video-BG (crossfade) + drehendes Chrome-Logo; transparentes Video wird **je Engine** gewählt (UA-Sniffing): Safari/iOS → HEVC-alpha `public/softdrive-logo.mp4`, Rest → VP9-alpha `public/softdrive-logo.webm` (jede Engine zeigt das andere Format als schwarzen Kasten). PNG (`/logo.png`) = Poster + `onError`-Fallback. Orchestrierte Intro
 - `HardDriveScene.tsx` / `HardDriveSection.tsx` — R3F-Canvas, lädt `public/models/softdrive.glb` (eigenes 3D-Modell der beiden, Draco + WebP)
-- `ReleasesSection.tsx` / `SetsSection.tsx` — Spotify/SoundCloud-Embeds in Dark-Glass-Cards
+- `ReleasesSection.tsx` / `SetsSection.tsx` — Spotify/SoundCloud-Embeds in Dark-Glass-Cards, gerendert über `SpotifyPlayer.tsx` / `SoundCloudPlayer.tsx`
+- `playerBus.ts` — **neu**: verhindert gleichzeitiges Abspielen. Registry aller Player; wer Play startet, pausiert die anderen. SoundCloud über die Widget-API (bindet an die normalen iframes), Spotify über die offizielle iFrame-API (`SpotifyPlayer` ersetzt das plain iframe durch einen Controller; bei blockiertem API-Script Fallback aufs plain iframe, dann ohne Koordination). ⚠️ Spotify claimt nur auf der paused→playing-Flanke — sonst pausieren veraltete „läuft noch"-Ticks den neuen Player wieder
 - `AboutSection.tsx` — Bio (Oliver & Bennet). Stats-Reihe wurde entfernt.
 - `DemoDropSection.tsx` — Demo-Formular (web3forms, access_key im Code), heller Chrome-Send-Button
 - `Footer.tsx` — © + Mail + Credit „3D & visuals by Oliver & Bennet"
 
 ## Status
+**15.07.2026 (2):** Player-Koordination: Spotify- und SoundCloud-Player spielen nicht mehr gleichzeitig (`playerBus.ts`, s. Komponenten-Map). E2E in Puppeteer verifiziert (SC→SC, SC→Spotify, Spotify→SC, keine Rück-Pausierung). tsc + eslint + build grün.
+
 **15.07.2026:** Stripes-Bug der Synth-Sektion an der Wurzel gefixt (Scale-Feedback-Loop bei Re-Measure nach Resize, s. Komponenten-Map; lokal per Resize-Churn in Puppeteer verifiziert, Desktop + Mobile). Sichtbare „▶ Listen on SoundCloud"-Fallback-Links unter allen SoundCloud-Playern (Releases + Sets, `.sc-fallback` in `globals.css`) — Absicherung für To-Do 3. Lint-Fix in `HeroSection` (setState in Effect → in den rAF-Callback verschoben). tsc + eslint + `next build` grün.
 
 **Fertig:** Font-Swap, Dark-Chrome-Theme site-weit, Icons gefixt, Footer-Credit, Cleanup (3 tote Komponenten + `ra.png` gelöscht, altes CSS-Theme raus), Chrome-Shimmer, Hero-Intro, Mobile-Padding-Bug gefixt (globaler Reset war unlayered → überschrieb Tailwind `px-6`; jetzt in `@layer base`). **3D-Modell getauscht:** eigene GLB der beiden (Quelle `D:\Softdrive\Softdrive 3d Model.glb`, 73 MB) via `gltf-transform optimize` auf 1,5 MB komprimiert (Simplify auf ~385k Tris, Draco, 2K-WebP-Textur) → `public/models/softdrive.glb`; alte `harddrive.glb` gelöscht. Licht/Kamera unverändert gelassen — Emiliano hat live gesichtet: „sieht sehr clean aus". tsc + eslint grün. **Noch NICHT committet/gepusht** (auf Emilianos Freigabe warten — fremdes Repo).
