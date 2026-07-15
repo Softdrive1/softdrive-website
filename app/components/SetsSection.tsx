@@ -71,6 +71,14 @@ export default function SetsSection() {
                     src={scSrc(set.scUrl)}
                     title={set.title}
                   />
+                  <a
+                    className="sc-fallback font-label"
+                    href={set.scUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    ▶ Listen on SoundCloud
+                  </a>
                 </div>
               </div>
             </motion.div>

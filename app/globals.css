@@ -168,6 +168,25 @@ body::after {
   overflow: hidden;
 }
 
+/* Plain link under each SoundCloud iframe — stays visible when a content
+   blocker eats the embed, so every visitor still has a path to the track. */
+.sc-fallback {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 14px 10px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  border-top: 1px solid var(--border);
+  transition: color 0.2s ease;
+}
+
+.sc-fallback:hover {
+  color: var(--text-muted);
+}
+
 /* ── Demo Drop form inputs ────────────────────────── */
 
 .demo-label {

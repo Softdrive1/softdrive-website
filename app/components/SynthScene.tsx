@@ -19,6 +19,14 @@ const KEY_NAME = /^(White|Black)\.?\d*$/;
 const CAMERA_POS = new THREE.Vector3(0, 2, 5.6);
 const CAMERA_FOV = 38;
 
+// Two always-on WebGL contexts + videos strain mobile GPUs — cap DPR
+// lower on touch devices to reduce iOS memory pressure.
+const DPR: [number, number] =
+  typeof window !== "undefined" &&
+  window.matchMedia("(pointer: coarse)").matches
+    ? [1, 1.5]
+    : [1, 2];
+
 const PRESS_DEPTH = 0.05; // model units straight down
 const PRESS_TILT = 0.03; // rad — hinge dips the key front a bit more
 const RELEASE_RATE = 14; // 1/s exponential spring-back (~100ms)
@@ -31,6 +39,31 @@ function SynthModel() {
   const cursorOnRef = useRef(false);
   const { size } = useThree();
 
+  // Model length along its long axis (model Z), measured in scene-LOCAL
+  // space. Box3.setFromObject would use world matrices — after the first
+  // frame those include this component's own rotation + fit scale, so a
+  // re-measure (any resize) reads the rotated depth instead of the length
+  // and feeds the old scale into the new one. That runaway scale pushed
+  // the model's front face past the camera → the full-width-stripes bug.
+  // inv(sceneWorld) * meshWorld cancels every ancestor transform, so this
+  // stays correct no matter when it re-runs.
+  const length = useMemo(() => {
+    scene.updateWorldMatrix(true, true);
+    const sceneInv = new THREE.Matrix4().copy(scene.matrixWorld).invert();
+    const box = new THREE.Box3();
+    const meshBox = new THREE.Box3();
+    const rel = new THREE.Matrix4();
+    scene.traverse((obj) => {
+      const mesh = obj as THREE.Mesh;
+      if (!mesh.isMesh || !mesh.geometry) return;
+      mesh.geometry.computeBoundingBox();
+      rel.multiplyMatrices(sceneInv, mesh.matrixWorld);
+      meshBox.copy(mesh.geometry.boundingBox!).applyMatrix4(rel);
+      box.union(meshBox);
+    });
+    return box.getSize(new THREE.Vector3()).z || 1;
+  }, [scene]);
+
   // Fit the keyboard (long axis = model Z) to the visible width at the
   // origin plane — on narrow screens it nearly fills the frame so keys
   // stay comfortably tappable.
@@ -40,8 +73,6 @@ function SynthModel() {
     // renders as flat color bands ("stripes" bug) or vanishes for a frame.
     // Render at neutral scale instead; the next size event corrects it.
     if (!(size.width > 0) || !(size.height > 0)) return 1;
-    const box = new THREE.Box3().setFromObject(scene);
-    const length = box.getSize(new THREE.Vector3()).z || 1;
     const aspect = size.width / size.height;
     const dist = CAMERA_POS.length();
     const visibleWidth =
@@ -50,13 +81,8 @@ function SynthModel() {
     // Clamp hard: at scale ≤ 2 the model's half-length stays inside the
     // camera distance, so a bad measurement can never put the camera
     // inside the model (which renders as full-width color bands).
-    const s = THREE.MathUtils.clamp((visibleWidth * fill) / length, 0.05, 2);
-    // TODO temporary debug logging for the stripes bug — remove when solved
-    console.log(
-      `[synth] scale=${s.toFixed(3)} size=${size.width}x${size.height} len=${length.toFixed(2)}`
-    );
-    return s;
-  }, [scene, size]);
+    return THREE.MathUtils.clamp((visibleWidth * fill) / length, 0.05, 2);
+  }, [length, size]);
 
   // Repaint mislabeled factory materials: "Black.001" is the pink edge/side
   // trim (node "Side.002") → dark brown; "Black" is the baby-blue main body
@@ -180,23 +206,7 @@ function ContextLossGuard() {
     const onLost = (e: Event) => e.preventDefault();
     const canvas = gl.domElement;
     canvas.addEventListener("webglcontextlost", onLost);
-    // TODO temporary debug logging for the stripes bug — remove when solved.
-    // Logs whenever the drawing buffer or CSS size of the canvas changes.
-    let prev = "";
-    let raf = 0;
-    const watch = () => {
-      const cur = `buffer=${canvas.width}x${canvas.height} css=${canvas.clientWidth}x${canvas.clientHeight}`;
-      if (cur !== prev) {
-        prev = cur;
-        console.log(`[synth] ${cur}`);
-      }
-      raf = requestAnimationFrame(watch);
-    };
-    raf = requestAnimationFrame(watch);
-    return () => {
-      canvas.removeEventListener("webglcontextlost", onLost);
-      cancelAnimationFrame(raf);
-    };
+    return () => canvas.removeEventListener("webglcontextlost", onLost);
   }, [gl]);
   return null;
 }
@@ -216,7 +226,7 @@ export default function SynthScene() {
     <Canvas
       camera={{ position: CAMERA_POS.toArray(), fov: CAMERA_FOV }}
       gl={{ antialias: true, alpha: true }}
-      dpr={[1, 1.5]}
+      dpr={DPR}
       // keep vertical page scrolling alive on touch devices
       style={{ touchAction: "pan-y" }}
     >

@@ -118,14 +118,24 @@ export default function ReleasesSection() {
                       />
                     ) : (
                       /* SoundCloud iframe */
-                      <iframe
-                        width="100%"
-                        height="120"
-                        style={{ border: "none", display: "block" }}
-                        allow="autoplay"
-                        src={scSrc(release.scUrl!)}
-                        title={release.title}
-                      />
+                      <>
+                        <iframe
+                          width="100%"
+                          height="120"
+                          style={{ border: "none", display: "block" }}
+                          allow="autoplay"
+                          src={scSrc(release.scUrl!)}
+                          title={release.title}
+                        />
+                        <a
+                          className="sc-fallback font-label"
+                          href={release.scUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          ▶ Listen on SoundCloud
+                        </a>
+                      </>
                     )}
                   </div>
                 </div>

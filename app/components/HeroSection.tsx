@@ -22,12 +22,14 @@ export default function HeroSection() {
       (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
     // Safari (desktop) UA contains "Safari" but not Chrome/Chromium/Firefox-on-iOS.
     const isSafari = /^((?!chrome|android|crios|fxios|chromium).)*safari/i.test(ua);
-    // WebKit (all iOS browsers + desktop Safari) renders HEVC-with-alpha but not
-    // VP9-alpha WebM; every other engine is the reverse.
-    if (isIOS || isSafari) setLogoSrc("/softdrive-logo.mp4");
     // Defer the PNG→video upgrade to a callback so the initial client render
     // still matches the server (PNG), avoiding a hydration mismatch.
-    const raf = requestAnimationFrame(() => setUseVideoLogo(true));
+    const raf = requestAnimationFrame(() => {
+      // WebKit (all iOS browsers + desktop Safari) renders HEVC-with-alpha but
+      // not VP9-alpha WebM; every other engine is the reverse.
+      if (isIOS || isSafari) setLogoSrc("/softdrive-logo.mp4");
+      setUseVideoLogo(true);
+    });
     return () => cancelAnimationFrame(raf);
   }, []);
 

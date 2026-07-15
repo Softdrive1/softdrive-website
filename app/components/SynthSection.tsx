@@ -1,41 +1,27 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import dynamic from "next/dynamic";
 import SectionHeading from "./SectionHeading";
 import { preloadSamples } from "./synthAudio";
 
+// Always mounted, exactly like HardDriveSection — no lazy-load or
+// IntersectionObserver pause. That "protection" caused the stripe/flicker
+// bugs (canvas mounting into an unmeasured container, janky visibility
+// events during momentum scrolling) and the model is small enough not to
+// need it.
 const SynthScene = dynamic(() => import("./SynthScene"), {
   ssr: false,
   loading: () => null,
 });
 
 export default function SynthSection() {
-  const sectionRef = useRef<HTMLElement>(null);
-  // Mount the Canvas once the section approaches; it then stays mounted and
-  // rendering. (No offscreen frameloop pause — that caused the stripes bug.)
-  const [load, setLoad] = useState(false);
-
   useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setLoad(true);
-          preloadSamples();
-          io.disconnect();
-        }
-      },
-      { rootMargin: "400px 0px" }
-    );
-    io.observe(el);
-    return () => io.disconnect();
+    preloadSamples();
   }, []);
 
   return (
     <section
-      ref={sectionRef}
       id="play"
       className="relative"
       style={{ paddingTop: "3rem", paddingBottom: "3rem" }}
@@ -57,9 +43,12 @@ export default function SynthSection() {
 
         <div
           aria-label="Playable synthesizer"
-          style={{ height: "clamp(340px, 55vh, 520px)" }}
+          // Fixed height, independent of canvas content, so the canvas never
+          // measures at the 300x150 default. svh (not vh): stable while the
+          // mobile URL bar shows/hides, so scrolling never resizes the canvas.
+          style={{ height: "clamp(340px, 55svh, 520px)" }}
         >
-          {load && <SynthScene />}
+          <SynthScene />
         </div>
       </div>
     </section>
