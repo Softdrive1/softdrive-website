@@ -12,10 +12,9 @@ const SynthScene = dynamic(() => import("./SynthScene"), {
 
 export default function SynthSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  // load: mount the Canvas once the section approaches (never unmounts).
-  // active: drives the frameloop — paused while offscreen.
+  // Mount the Canvas once the section approaches; it then stays mounted and
+  // rendering. (No offscreen frameloop pause — that caused the stripes bug.)
   const [load, setLoad] = useState(false);
-  const [active, setActive] = useState(false);
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -25,8 +24,8 @@ export default function SynthSection() {
         if (entry.isIntersecting) {
           setLoad(true);
           preloadSamples();
+          io.disconnect();
         }
-        setActive(entry.isIntersecting);
       },
       { rootMargin: "400px 0px" }
     );
@@ -39,7 +38,7 @@ export default function SynthSection() {
       ref={sectionRef}
       id="play"
       className="relative"
-      style={{ paddingTop: "6rem", paddingBottom: "6rem" }}
+      style={{ paddingTop: "3rem", paddingBottom: "3rem" }}
     >
       <div
         className="absolute top-0 left-0 right-0 h-px"
@@ -60,7 +59,7 @@ export default function SynthSection() {
           aria-label="Playable synthesizer"
           style={{ height: "clamp(340px, 55vh, 520px)" }}
         >
-          {load && <SynthScene active={active} />}
+          {load && <SynthScene />}
         </div>
       </div>
     </section>

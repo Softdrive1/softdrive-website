@@ -15,8 +15,26 @@ export const NUM_KEYS = 12;
 
 let ctx: AudioContext | null = null;
 
+// Peak-normalize playback so the sample set has a consistent level.
+const TARGET_PEAK = 0.9;
+const MAX_GAIN = 3;
+
+type Sample = { buffer: AudioBuffer; gain: number };
+
 const fetches = new Map<number, Promise<ArrayBuffer | null>>();
-const decodes = new Map<number, Promise<AudioBuffer | null>>();
+const decodes = new Map<number, Promise<Sample | null>>();
+
+function peakOf(buffer: AudioBuffer): number {
+  let peak = 0;
+  for (let c = 0; c < buffer.numberOfChannels; c++) {
+    const data = buffer.getChannelData(c);
+    for (let i = 0; i < data.length; i++) {
+      const v = Math.abs(data[i]);
+      if (v > peak) peak = v;
+    }
+  }
+  return peak;
+}
 
 // Monophonic: only one sample plays at a time.
 const activeSources = new Set<AudioBufferSourceNode>();
@@ -50,13 +68,20 @@ export function preloadSamples() {
   for (let key = 1; key <= NUM_KEYS; key++) void fetchSample(key);
 }
 
-function ensureBuffer(key: number): Promise<AudioBuffer | null> {
+function ensureBuffer(key: number): Promise<Sample | null> {
   let p = decodes.get(key);
   if (!p) {
     p = fetchSample(key).then((raw) => {
       if (!raw || !ctx) return null;
       // slice() — decodeAudioData detaches the buffer it receives
-      return ctx.decodeAudioData(raw.slice(0)).catch(() => null);
+      return ctx
+        .decodeAudioData(raw.slice(0))
+        .then((buffer) => {
+          const peak = peakOf(buffer);
+          const gain = peak > 0 ? Math.min(TARGET_PEAK / peak, MAX_GAIN) : 1;
+          return { buffer, gain };
+        })
+        .catch(() => null);
     });
     decodes.set(key, p);
   }
@@ -75,16 +100,19 @@ export function playKey(key: number) {
   }
   if (ctx.state === "suspended") void ctx.resume();
 
-  void ensureBuffer(key).then((buffer) => {
-    if (!buffer) {
+  void ensureBuffer(key).then((sample) => {
+    if (!sample) {
       console.warn(`sample key${key}.mp3 not found`);
       return;
     }
     if (!ctx) return;
     stopAll();
     const src = ctx.createBufferSource();
-    src.buffer = buffer;
-    src.connect(ctx.destination);
+    src.buffer = sample.buffer;
+    const g = ctx.createGain();
+    g.gain.value = sample.gain;
+    src.connect(g);
+    g.connect(ctx.destination);
     src.onended = () => activeSources.delete(src);
     activeSources.add(src);
     src.start();

@@ -35,6 +35,11 @@ function SynthModel() {
   // origin plane — on narrow screens it nearly fills the frame so keys
   // stay comfortably tappable.
   const scale = useMemo(() => {
+    // Transient 0-sized measurements during mount/resize churn make the
+    // aspect (and thus the scale) explode to Infinity/NaN — the model then
+    // renders as flat color bands ("stripes" bug) or vanishes for a frame.
+    // Render at neutral scale instead; the next size event corrects it.
+    if (!(size.width > 0) || !(size.height > 0)) return 1;
     const box = new THREE.Box3().setFromObject(scene);
     const length = box.getSize(new THREE.Vector3()).z || 1;
     const aspect = size.width / size.height;
@@ -42,11 +47,20 @@ function SynthModel() {
     const visibleWidth =
       2 * dist * Math.tan((CAMERA_FOV * Math.PI) / 360) * aspect;
     const fill = aspect < 0.9 ? 0.95 : 0.62;
-    return (visibleWidth * fill) / length;
+    // Clamp hard: at scale ≤ 2 the model's half-length stays inside the
+    // camera distance, so a bad measurement can never put the camera
+    // inside the model (which renders as full-width color bands).
+    const s = THREE.MathUtils.clamp((visibleWidth * fill) / length, 0.05, 2);
+    // TODO temporary debug logging for the stripes bug — remove when solved
+    console.log(
+      `[synth] scale=${s.toFixed(3)} size=${size.width}x${size.height} len=${length.toFixed(2)}`
+    );
+    return s;
   }, [scene, size]);
 
-  // The edge/side trim (node "Side.002") ships with a pink material
-  // ("Black.001" — misleading name, baseColor is magenta). Paint it black.
+  // Repaint mislabeled factory materials: "Black.001" is the pink edge/side
+  // trim (node "Side.002") → dark brown; "Black" is the baby-blue main body
+  // (node "Support") → lighter warm Juno-60 brown.
   useEffect(() => {
     scene.traverse((obj) => {
       const mesh = obj as THREE.Mesh;
@@ -54,7 +68,9 @@ function SynthModel() {
       const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
       for (const mat of mats) {
         const m = mat as THREE.MeshStandardMaterial;
-        if (m.name === "Black.001" && m.color) m.color.setRGB(0, 0, 0);
+        if (!m.color) continue;
+        if (m.name === "Black.001") m.color.set("#503a2a");
+        else if (m.name === "Black") m.color.set("#6e4f3a");
       }
     });
   }, [scene]);
@@ -153,31 +169,35 @@ function CameraRig() {
   return null;
 }
 
-/* While parked offscreen the frameloop runs on "demand" (not "never"), so
-   the canvas can still repaint after resize/visibility/context changes
-   instead of presenting a stale buffer (the "colored stripes" bug). This
-   guard triggers those repaints. */
-function RenderGuard({ active }: { active: boolean }) {
-  const { gl, invalidate } = useThree();
+/* preventDefault on context loss is required for the browser to restore
+   the WebGL context; the always-running frameloop then repaints on its own.
+   NOTE: the frameloop is deliberately NOT paused offscreen — any pause
+   lets the browser discard the canvas texture mid-scroll, which shows up
+   as flat colored stripes (no way to recomposite without a fresh frame). */
+function ContextLossGuard() {
+  const { gl } = useThree();
   useEffect(() => {
-    invalidate();
-  }, [active, invalidate]);
-  useEffect(() => {
-    const repaint = () => invalidate();
-    // preventDefault on loss is required for the browser to restore the context
     const onLost = (e: Event) => e.preventDefault();
     const canvas = gl.domElement;
-    window.addEventListener("resize", repaint);
-    document.addEventListener("visibilitychange", repaint);
     canvas.addEventListener("webglcontextlost", onLost);
-    canvas.addEventListener("webglcontextrestored", repaint);
-    return () => {
-      window.removeEventListener("resize", repaint);
-      document.removeEventListener("visibilitychange", repaint);
-      canvas.removeEventListener("webglcontextlost", onLost);
-      canvas.removeEventListener("webglcontextrestored", repaint);
+    // TODO temporary debug logging for the stripes bug — remove when solved.
+    // Logs whenever the drawing buffer or CSS size of the canvas changes.
+    let prev = "";
+    let raf = 0;
+    const watch = () => {
+      const cur = `buffer=${canvas.width}x${canvas.height} css=${canvas.clientWidth}x${canvas.clientHeight}`;
+      if (cur !== prev) {
+        prev = cur;
+        console.log(`[synth] ${cur}`);
+      }
+      raf = requestAnimationFrame(watch);
     };
-  }, [gl, invalidate]);
+    raf = requestAnimationFrame(watch);
+    return () => {
+      canvas.removeEventListener("webglcontextlost", onLost);
+      cancelAnimationFrame(raf);
+    };
+  }, [gl]);
   return null;
 }
 
@@ -191,17 +211,16 @@ function LoadingBox() {
   );
 }
 
-export default function SynthScene({ active }: { active: boolean }) {
+export default function SynthScene() {
   return (
     <Canvas
-      frameloop={active ? "always" : "demand"}
       camera={{ position: CAMERA_POS.toArray(), fov: CAMERA_FOV }}
       gl={{ antialias: true, alpha: true }}
       dpr={[1, 1.5]}
       // keep vertical page scrolling alive on touch devices
       style={{ touchAction: "pan-y" }}
     >
-      <RenderGuard active={active} />
+      <ContextLossGuard />
       <ambientLight intensity={1.35} />
       <directionalLight position={[4, 7, 5]} intensity={2.3} />
 

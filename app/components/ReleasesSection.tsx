@@ -75,7 +75,7 @@ export default function ReleasesSection() {
     <section
       id="releases"
       className="relative"
-      style={{ paddingTop: "6rem", paddingBottom: "6rem" }}
+      style={{ paddingTop: "6rem", paddingBottom: "3rem" }}
     >
       <div
         className="absolute top-0 left-0 right-0 h-px"
