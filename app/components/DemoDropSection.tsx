@@ -120,9 +120,7 @@ export default function DemoDropSection() {
         style={{ maxWidth: "1000px", marginLeft: "auto", marginRight: "auto" }}
       >
         {/* Heading */}
-        <SectionHeading sub="Send us your tracks. We listen to everything.">
-          Demo Drop
-        </SectionHeading>
+        <SectionHeading>Demo Drop</SectionHeading>
 
         {/* Form card */}
         <motion.div

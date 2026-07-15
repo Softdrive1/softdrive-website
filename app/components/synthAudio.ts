@@ -18,6 +18,20 @@ let ctx: AudioContext | null = null;
 const fetches = new Map<number, Promise<ArrayBuffer | null>>();
 const decodes = new Map<number, Promise<AudioBuffer | null>>();
 
+// Monophonic: only one sample plays at a time.
+const activeSources = new Set<AudioBufferSourceNode>();
+
+function stopAll() {
+  activeSources.forEach((src) => {
+    try {
+      src.stop();
+    } catch {
+      // already stopped/ended
+    }
+  });
+  activeSources.clear();
+}
+
 function fetchSample(key: number): Promise<ArrayBuffer | null> {
   let p = fetches.get(key);
   if (!p) {
@@ -67,9 +81,12 @@ export function playKey(key: number) {
       return;
     }
     if (!ctx) return;
+    stopAll();
     const src = ctx.createBufferSource();
     src.buffer = buffer;
     src.connect(ctx.destination);
+    src.onended = () => activeSources.delete(src);
+    activeSources.add(src);
     src.start();
   });
 }

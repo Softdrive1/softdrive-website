@@ -54,9 +54,7 @@ export default function SynthSection() {
         className="px-6 md:px-8"
         style={{ maxWidth: "1000px", marginLeft: "auto", marginRight: "auto" }}
       >
-        <SectionHeading sub="Tap the keys. That's our sound.">
-          Play
-        </SectionHeading>
+        <SectionHeading>Play the synth</SectionHeading>
 
         <div
           aria-label="Playable synthesizer"

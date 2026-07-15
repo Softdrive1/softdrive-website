@@ -11,8 +11,10 @@ import { playKey } from "./synthAudio";
    Black / Black.001 … (black numbering is non-contiguous — match by
    prefix, never by exact list). Key geometry is baked in model space
    (node transforms are identity), so left-to-right order comes from
-   bounding-box centers, not node positions. */
-const KEY_NAME = /^(White|Black)(\.\d+)?$/;
+   bounding-box centers, not node positions.
+   ⚠️ GLTFLoader strips dots from node names (sanitizeNodeName), so
+   "White.001" arrives as "White001" — match both spellings. */
+const KEY_NAME = /^(White|Black)\.?\d*$/;
 
 const CAMERA_POS = new THREE.Vector3(0, 2, 5.6);
 const CAMERA_FOV = 38;
@@ -42,6 +44,20 @@ function SynthModel() {
     const fill = aspect < 0.9 ? 0.95 : 0.62;
     return (visibleWidth * fill) / length;
   }, [scene, size]);
+
+  // The edge/side trim (node "Side.002") ships with a pink material
+  // ("Black.001" — misleading name, baseColor is magenta). Paint it black.
+  useEffect(() => {
+    scene.traverse((obj) => {
+      const mesh = obj as THREE.Mesh;
+      if (!mesh.isMesh) return;
+      const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+      for (const mat of mats) {
+        const m = mat as THREE.MeshStandardMaterial;
+        if (m.name === "Black.001" && m.color) m.color.setRGB(0, 0, 0);
+      }
+    });
+  }, [scene]);
 
   // Collect the 12 key meshes and map them to key 1…12 by world X.
   useEffect(() => {
@@ -137,6 +153,34 @@ function CameraRig() {
   return null;
 }
 
+/* While parked offscreen the frameloop runs on "demand" (not "never"), so
+   the canvas can still repaint after resize/visibility/context changes
+   instead of presenting a stale buffer (the "colored stripes" bug). This
+   guard triggers those repaints. */
+function RenderGuard({ active }: { active: boolean }) {
+  const { gl, invalidate } = useThree();
+  useEffect(() => {
+    invalidate();
+  }, [active, invalidate]);
+  useEffect(() => {
+    const repaint = () => invalidate();
+    // preventDefault on loss is required for the browser to restore the context
+    const onLost = (e: Event) => e.preventDefault();
+    const canvas = gl.domElement;
+    window.addEventListener("resize", repaint);
+    document.addEventListener("visibilitychange", repaint);
+    canvas.addEventListener("webglcontextlost", onLost);
+    canvas.addEventListener("webglcontextrestored", repaint);
+    return () => {
+      window.removeEventListener("resize", repaint);
+      document.removeEventListener("visibilitychange", repaint);
+      canvas.removeEventListener("webglcontextlost", onLost);
+      canvas.removeEventListener("webglcontextrestored", repaint);
+    };
+  }, [gl, invalidate]);
+  return null;
+}
+
 /* Wireframe placeholder while the GLB loads */
 function LoadingBox() {
   return (
@@ -150,13 +194,14 @@ function LoadingBox() {
 export default function SynthScene({ active }: { active: boolean }) {
   return (
     <Canvas
-      frameloop={active ? "always" : "never"}
+      frameloop={active ? "always" : "demand"}
       camera={{ position: CAMERA_POS.toArray(), fov: CAMERA_FOV }}
       gl={{ antialias: true, alpha: true }}
       dpr={[1, 1.5]}
       // keep vertical page scrolling alive on touch devices
       style={{ touchAction: "pan-y" }}
     >
+      <RenderGuard active={active} />
       <ambientLight intensity={1.35} />
       <directionalLight position={[4, 7, 5]} intensity={2.3} />
 
