@@ -130,25 +130,25 @@ export default function DemoDropSection() {
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
-          <div className="release-card-outer">
-            <div className="release-card-inner" style={{ padding: "32px" }}>
-              {submitted ? (
+          <div className="demo-card" style={{ padding: "32px" }}>
+            {submitted ? (
                 /* ── Success state ── */
                 <div
                   className="text-center"
                   style={{ paddingTop: "16px", paddingBottom: "16px" }}
                 >
                   <p
-                    className="font-display chrome-text"
+                    className="font-display"
                     style={{
                       fontSize: "clamp(1.25rem, 4vw, 1.75rem)",
                       lineHeight: 1.2,
                       marginBottom: "12px",
+                      color: "#08080b",
                     }}
                   >
                     Thanks — we got your track.
                   </p>
-                  <p style={{ fontSize: "14px", color: "var(--text-muted)" }}>
+                  <p style={{ fontSize: "14px", color: "rgba(8, 8, 11, 0.55)" }}>
                     We&apos;ll be in touch.
                   </p>
                 </div>
@@ -170,7 +170,7 @@ export default function DemoDropSection() {
                     {/* Artist Name */}
                     <div>
                       <label htmlFor="artistName" className="demo-label">
-                        Artist Name <span style={{ color: "var(--text-dim)" }}>*</span>
+                        Artist Name <span style={{ color: "rgba(8, 8, 11, 0.4)" }}>*</span>
                       </label>
                       <input
                         id="artistName"
@@ -190,7 +190,7 @@ export default function DemoDropSection() {
                     {/* Email */}
                     <div>
                       <label htmlFor="email" className="demo-label">
-                        Email <span style={{ color: "var(--text-dim)" }}>*</span>
+                        Email <span style={{ color: "rgba(8, 8, 11, 0.4)" }}>*</span>
                       </label>
                       <input
                         id="email"
@@ -210,7 +210,7 @@ export default function DemoDropSection() {
                     {/* Track Title */}
                     <div>
                       <label htmlFor="trackTitle" className="demo-label">
-                        Track Title <span style={{ color: "var(--text-dim)" }}>*</span>
+                        Track Title <span style={{ color: "rgba(8, 8, 11, 0.4)" }}>*</span>
                       </label>
                       <input
                         id="trackTitle"
@@ -229,7 +229,7 @@ export default function DemoDropSection() {
                     {/* Track Link */}
                     <div>
                       <label htmlFor="trackLink" className="demo-label">
-                        Link to Track <span style={{ color: "var(--text-dim)" }}>*</span>
+                        Link to Track <span style={{ color: "rgba(8, 8, 11, 0.4)" }}>*</span>
                       </label>
                       <input
                         id="trackLink"
@@ -285,14 +285,14 @@ export default function DemoDropSection() {
                           fontWeight: 600,
                           letterSpacing: "0.01em",
                           background: submitting
-                            ? "rgba(255,255,255,0.45)"
-                            : "linear-gradient(180deg, #ffffff, #d7dde5)",
-                          color: "#08080b",
+                            ? "rgba(8,8,11,0.45)"
+                            : "#08080b",
+                          color: "#ffffff",
                           border: "none",
                           cursor: submitting ? "not-allowed" : "pointer",
                           boxShadow: submitting
                             ? "none"
-                            : "0 2px 16px rgba(158,203,232,0.28)",
+                            : "0 2px 14px rgba(8,8,11,0.25)",
                           transition:
                             "opacity 0.25s, transform 0.25s cubic-bezier(0.25,0.46,0.45,0.94), background 0.2s",
                           fontFamily: "var(--font-inter), system-ui, sans-serif",
@@ -315,7 +315,7 @@ export default function DemoDropSection() {
                               width: "20px",
                               height: "20px",
                               borderRadius: "50%",
-                              background: "rgba(0,0,0,0.12)",
+                              background: "rgba(255,255,255,0.16)",
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
@@ -336,7 +336,7 @@ export default function DemoDropSection() {
                       <p
                         style={{
                           fontSize: "11px",
-                          color: "var(--text-dim)",
+                          color: "rgba(8, 8, 11, 0.45)",
                           lineHeight: 1.5,
                           fontFamily: "var(--font-inter), system-ui, sans-serif",
                         }}
@@ -347,8 +347,7 @@ export default function DemoDropSection() {
                     </div>
                   </div>
                 </form>
-              )}
-            </div>
+            )}
           </div>
         </motion.div>
       </div>

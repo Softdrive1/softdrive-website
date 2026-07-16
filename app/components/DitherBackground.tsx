@@ -15,9 +15,9 @@ export default function DitherBackground() {
     >
       <Dither
         waveColors={[
-          [0.32, 0.15, 1], // lila
-          [1, 0.1, 0.14], // rot
-          [1, 0.45, 0.08], // orange
+          [0.145, 0.008, 0.522], // #250285 tiefes Blauviolett (Hero-Video)
+          [0.569, 0.031, 0.157], // #910828 tiefes Rot
+          [0.525, 0.024, 0.659], // #8606a8 Purpur
         ]}
         colorCycleSeconds={8}
         disableAnimation={false}

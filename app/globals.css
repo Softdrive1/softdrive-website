@@ -169,7 +169,9 @@ body::after {
 }
 
 /* Plain link under each SoundCloud iframe — stays visible when a content
-   blocker eats the embed, so every visitor still has a path to the track. */
+   blocker eats the embed, so every visitor still has a path to the track.
+   White like the embed above so player + banner read as one block; the
+   card's overflow:hidden clips it to the same corner radius. */
 .sc-fallback {
   display: flex;
   align-items: center;
@@ -178,13 +180,55 @@ body::after {
   font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--text-dim);
-  border-top: 1px solid var(--border);
+  color: #08080b;
+  background: #ffffff;
+  border-top: 1px solid rgba(8, 8, 11, 0.08);
   transition: color 0.2s ease;
 }
 
 .sc-fallback:hover {
-  color: var(--text-muted);
+  color: rgba(8, 8, 11, 0.6);
+}
+
+/* ── Demo Drop — white card ───────────────────────── */
+
+.demo-card {
+  background: #ffffff;
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+}
+
+.demo-card .demo-label {
+  color: rgba(8, 8, 11, 0.65);
+}
+
+.demo-card .demo-input {
+  background: rgba(8, 8, 11, 0.04);
+  border-color: rgba(8, 8, 11, 0.16);
+  color: #08080b;
+}
+
+.demo-card .demo-input::placeholder {
+  color: rgba(8, 8, 11, 0.35);
+}
+
+.demo-card .demo-input:focus {
+  border-color: #08080b;
+  box-shadow: 0 0 0 3px rgba(8, 8, 11, 0.1);
+  background: #ffffff;
+}
+
+.demo-card .demo-input.has-error {
+  border-color: rgba(198, 34, 34, 0.55);
+}
+
+.demo-card .demo-input.has-error:focus {
+  box-shadow: 0 0 0 3px rgba(198, 34, 34, 0.12);
+}
+
+.demo-card .demo-error-msg {
+  color: #c62222;
 }
 
 /* ── Demo Drop form inputs ────────────────────────── */

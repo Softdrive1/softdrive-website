@@ -84,9 +84,10 @@ function SynthModel() {
     return THREE.MathUtils.clamp((visibleWidth * fill) / length, 0.05, 2);
   }, [length, size]);
 
-  // Repaint mislabeled factory materials: "Black.001" is the pink edge/side
-  // trim (node "Side.002") → dark brown; "Black" is the baby-blue main body
-  // (node "Support") → lighter warm Juno-60 brown.
+  // Repaint mislabeled factory materials: "Black.001" is the edge/side trim
+  // (node "Side.002", only user of that material) → deep blue-violet from the
+  // hero video; "Black" is the baby-blue main body (node "Support") → warm
+  // Juno-60 brown.
   useEffect(() => {
     scene.traverse((obj) => {
       const mesh = obj as THREE.Mesh;
@@ -95,7 +96,7 @@ function SynthModel() {
       for (const mat of mats) {
         const m = mat as THREE.MeshStandardMaterial;
         if (!m.color) continue;
-        if (m.name === "Black.001") m.color.set("#503a2a");
+        if (m.name === "Black.001") m.color.set("#250285");
         else if (m.name === "Black") m.color.set("#6e4f3a");
       }
     });

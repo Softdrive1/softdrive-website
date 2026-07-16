@@ -25,14 +25,15 @@ const spaceGrotesk = Space_Grotesk({
   display: "swap",
 });
 
+// metadataBase makes the file-convention og:image (app/opengraph-image.png)
+// resolve to an absolute URL — required for WhatsApp/social link previews.
 export const metadata: Metadata = {
+  metadataBase: new URL("https://wearesoftdrive.netlify.app"),
   title: "Softdrive",
-  description:
-    "Electronic music duo from Hamburg. Speed House · UK Garage · Hard House · Trance.",
+  description: "We make the music you hear at 4am.",
   openGraph: {
     title: "Softdrive",
-    description:
-      "Electronic music duo from Hamburg. Speed House · UK Garage · Hard House · Trance.",
+    description: "We make the music you hear at 4am.",
     type: "website",
   },
 };
