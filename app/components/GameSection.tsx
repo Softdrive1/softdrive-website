@@ -3,9 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import SectionHeading from "./SectionHeading";
 
-/* "Catch the Drive" — plain 2D-canvas endless catch game, no libraries.
-   The 12 falling drives use /game/drive.png when present, otherwise the
-   💾 emoji. Missed drives just vanish — no lives, chill endless mode. */
+/* "Catch the Drive" — plain 2D-canvas catch game, no libraries.
+   Falling drives use /game/drive.png when present, otherwise the 💾
+   emoji. One missed drive ends the run; a single highscore (name +
+   score) persists in localStorage. */
 
 const CHAR_H = 155; // sprite height on screen (source PNG is 249x747)
 const CHAR_ASPECT = 249 / 747;
@@ -19,13 +20,39 @@ const MIN_SPAWN = 0.45;
 const SPAWN_RAMP = 0.012; // s shaved off the spawn interval per second
 const PULSE_RATE = 6; // 1/s catch-pulse decay
 
+const HS_KEY = "softdrive_catchthedrive_highscore";
+
+type Highscore = { name: string; score: number };
+
+function loadHighscore(): Highscore | null {
+  try {
+    const raw = localStorage.getItem(HS_KEY);
+    if (!raw) return null;
+    const v = JSON.parse(raw) as Partial<Highscore> | null;
+    if (typeof v?.name === "string" && typeof v?.score === "number") {
+      return { name: v.name, score: v.score };
+    }
+  } catch {
+    // corrupt storage → treat as no highscore
+  }
+  return null;
+}
+
 export default function GameSection() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const resetRef = useRef<() => void>(() => {});
+  const highRef = useRef<Highscore | null>(null);
   const [count, setCount] = useState(0);
-  const [started, setStarted] = useState(false);
+  const [phase, setPhase] = useState<"idle" | "playing" | "over">("idle");
   const [coarse, setCoarse] = useState(false);
+  const [high, setHigh] = useState<Highscore | null>(null);
+  const [pendingHigh, setPendingHigh] = useState(false);
+  const [nameInput, setNameInput] = useState("");
+
+  useEffect(() => {
+    highRef.current = high;
+  }, [high]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -34,7 +61,9 @@ export default function GameSection() {
     if (!canvas || !wrap || !ctx) return;
 
     setCoarse(window.matchMedia("(pointer: coarse)").matches);
+    setHigh(loadHighscore());
 
+    let bgImg: HTMLImageElement | null = null;
     let charImg: HTMLImageElement | null = null;
     let driveImg: HTMLImageElement | null = null;
     let W = 0;
@@ -44,6 +73,7 @@ export default function GameSection() {
     let drives: { x: number; y: number }[] = [];
     let elapsed = 0;
     let spawnIn = BASE_SPAWN;
+    let score = 0;
     let playing = false;
     let inView = false;
     let raf = 0;
@@ -51,6 +81,12 @@ export default function GameSection() {
 
     const charW = CHAR_H * CHAR_ASPECT;
 
+    const bg = new Image();
+    bg.src = "/game/game-bg.png";
+    bg.onload = () => {
+      bgImg = bg;
+      draw();
+    };
     const char = new Image();
     char.src = "/game/character.png";
     char.onload = () => {
@@ -66,6 +102,16 @@ export default function GameSection() {
     function draw() {
       if (!ctx) return;
       ctx.clearRect(0, 0, W, H);
+      // Background, cover-fit (fill, crop overflow, never distort), then a
+      // darkening wash so drives and character stay readable in front.
+      if (bgImg) {
+        const s = Math.max(W / bgImg.width, H / bgImg.height);
+        const bw = bgImg.width * s;
+        const bh = bgImg.height * s;
+        ctx.drawImage(bgImg, (W - bw) / 2, (H - bh) / 2, bw, bh);
+        ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+        ctx.fillRect(0, 0, W, H);
+      }
       for (const d of drives) {
         if (driveImg) {
           ctx.drawImage(
@@ -76,6 +122,9 @@ export default function GameSection() {
             DRIVE_SIZE
           );
         } else {
+          // Full alpha — color-emoji glyphs multiply with the fillStyle
+          // alpha, and it still holds the 0.3 from the darkening wash.
+          ctx.fillStyle = "#fff";
           ctx.font = `${DRIVE_SIZE - 6}px system-ui, sans-serif`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
@@ -107,6 +156,14 @@ export default function GameSection() {
       draw();
     }
 
+    function endGame() {
+      if (!playing) return;
+      playing = false;
+      sync();
+      setPhase("over");
+      setPendingHigh(score > (highRef.current?.score ?? 0));
+    }
+
     function step(dt: number) {
       elapsed += dt;
       pulse = pulse < 0.01 ? 0 : pulse * Math.exp(-PULSE_RATE * dt);
@@ -124,6 +181,7 @@ export default function GameSection() {
       const handsTop = H - CHAR_H - CATCH_PAD;
       const handsBottom = H - CHAR_H + CHAR_H * HANDS_FRAC;
       const reachX = charW / 2 + CATCH_PAD;
+      let missed = false;
       drives = drives.filter((d) => {
         d.y += fall * dt;
         const bottom = d.y + DRIVE_SIZE / 2;
@@ -133,11 +191,17 @@ export default function GameSection() {
           Math.abs(d.x - charX) <= reachX
         ) {
           pulse = 1;
-          setCount((c) => c + 1);
+          score += 1;
+          setCount(score);
           return false;
         }
-        return d.y - DRIVE_SIZE / 2 <= H;
+        if (d.y - DRIVE_SIZE / 2 > H) {
+          missed = true;
+          return false;
+        }
+        return true;
       });
+      if (missed) endGame();
     }
 
     const active = () => playing && inView && !document.hidden;
@@ -196,7 +260,7 @@ export default function GameSection() {
       moveTo(e.clientX);
       if (!playing) {
         playing = true;
-        setStarted(true);
+        setPhase("playing");
         sync();
       }
     };
@@ -208,9 +272,12 @@ export default function GameSection() {
       elapsed = 0;
       spawnIn = BASE_SPAWN;
       pulse = 0;
+      score = 0;
       playing = false;
       setCount(0);
-      setStarted(false);
+      setPendingHigh(false);
+      setNameInput("");
+      setPhase("idle");
       sync();
       draw();
     };
@@ -224,6 +291,41 @@ export default function GameSection() {
       if (raf) cancelAnimationFrame(raf);
     };
   }, []);
+
+  function saveHighscore() {
+    const entry: Highscore = {
+      name: nameInput.trim().slice(0, 12) || "???",
+      score: count,
+    };
+    setHigh(entry);
+    setPendingHigh(false);
+    try {
+      localStorage.setItem(HS_KEY, JSON.stringify(entry));
+    } catch {
+      // storage unavailable (private mode) — highscore stays for the session
+    }
+  }
+
+  const highText = high ? `${high.score} — ${high.name}` : "—";
+
+  const resetButton = (
+    <button
+      type="button"
+      aria-label="Reset game"
+      onClick={() => resetRef.current()}
+      style={{
+        fontSize: "20px",
+        color: "var(--text-muted)",
+        lineHeight: 1,
+        background: "none",
+        border: "none",
+        cursor: "pointer",
+        padding: 0,
+      }}
+    >
+      ↺
+    </button>
+  );
 
   return (
     <section
@@ -246,29 +348,10 @@ export default function GameSection() {
       >
         <SectionHeading>Catch the Drive</SectionHeading>
 
-        {/* Explicit CSS size before the canvas mounts (never the 300x150
-            default) + svh so the mobile URL bar can't resize the canvas. */}
-        <div
-          ref={wrapRef}
-          className="relative mx-auto"
-          style={{
-            width: "min(560px, 100%)",
-            height: "clamp(340px, 62svh, 600px)",
-            border: "1px solid var(--border)",
-          }}
-        >
-          <canvas
-            ref={canvasRef}
-            aria-label="Catch the Drive minigame"
-            style={{
-              width: "100%",
-              height: "100%",
-              display: "block",
-              touchAction: "none",
-            }}
-          />
+        <div className="flex flex-col items-center gap-3">
+          {/* Counter centered above the playfield */}
           <div
-            className="font-display absolute top-3 left-0 right-0 text-center pointer-events-none select-none"
+            className="font-display text-center"
             style={{
               fontSize: "clamp(1.3rem, 4vw, 1.8rem)",
               color: "var(--text-muted)",
@@ -277,33 +360,135 @@ export default function GameSection() {
           >
             DRIVES: {count}
           </div>
-          {!started && (
-            <div
-              className="font-display absolute inset-0 flex items-center justify-center pointer-events-none select-none"
-              style={{
-                fontSize: "clamp(1.1rem, 3.5vw, 1.5rem)",
-                letterSpacing: "0.08em",
-              }}
-            >
-              {coarse ? "TAP TO START" : "CLICK TO START"}
-            </div>
-          )}
-          <button
-            type="button"
-            aria-label="Reset game"
-            onClick={() => resetRef.current()}
-            className="absolute top-3 right-3"
+
+          {/* Explicit CSS size before the canvas mounts (never the 300x150
+              default) + svh so the mobile URL bar can't resize the canvas. */}
+          <div
+            ref={wrapRef}
+            className="relative"
             style={{
-              fontSize: "20px",
-              color: "var(--text-muted)",
-              lineHeight: 1,
-              background: "none",
-              border: "none",
-              cursor: "pointer",
+              width: "min(560px, 100%)",
+              height: "clamp(340px, 62svh, 600px)",
+              border: "1px solid var(--border)",
             }}
           >
-            ↺
-          </button>
+            <canvas
+              ref={canvasRef}
+              aria-label="Catch the Drive minigame"
+              style={{
+                width: "100%",
+                height: "100%",
+                display: "block",
+                touchAction: "none",
+              }}
+            />
+            {phase === "idle" && (
+              <div
+                className="font-display absolute inset-0 flex items-center justify-center pointer-events-none select-none"
+                style={{
+                  fontSize: "clamp(1.1rem, 3.5vw, 1.5rem)",
+                  letterSpacing: "0.08em",
+                  textShadow: "0 2px 12px rgba(0,0,0,0.8)",
+                }}
+              >
+                {coarse ? "TAP TO START" : "CLICK TO START"}
+              </div>
+            )}
+            {phase === "over" && (
+              <div
+                className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center select-none"
+                style={{ background: "rgba(0, 0, 0, 0.55)" }}
+              >
+                <div
+                  className="font-display"
+                  style={{
+                    fontSize: "clamp(1.5rem, 5vw, 2.2rem)",
+                    letterSpacing: "0.06em",
+                  }}
+                >
+                  GAME OVER
+                </div>
+                <div
+                  className="font-display"
+                  style={{ fontSize: "1.1rem", color: "var(--text-muted)" }}
+                >
+                  DRIVES: {count}
+                </div>
+                {pendingHigh && (
+                  <>
+                    <div
+                      className="font-display"
+                      style={{ fontSize: "0.95rem", letterSpacing: "0.08em" }}
+                    >
+                      NEW HIGHSCORE!
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        value={nameInput}
+                        onChange={(e) =>
+                          setNameInput(e.target.value.slice(0, 12))
+                        }
+                        maxLength={12}
+                        placeholder="NAME"
+                        aria-label="Highscore name"
+                        style={{
+                          width: "9rem",
+                          padding: "6px 10px",
+                          background: "rgba(0, 0, 0, 0.5)",
+                          border: "1px solid var(--border-hover)",
+                          color: "inherit",
+                          fontSize: "0.95rem",
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={saveHighscore}
+                        className="font-display"
+                        style={{
+                          padding: "6px 14px",
+                          border: "1px solid var(--border-hover)",
+                          background: "rgba(0, 0, 0, 0.4)",
+                          cursor: "pointer",
+                          letterSpacing: "0.06em",
+                        }}
+                      >
+                        SAVE
+                      </button>
+                    </div>
+                  </>
+                )}
+                <button
+                  type="button"
+                  onClick={() => resetRef.current()}
+                  className="font-display"
+                  style={{
+                    marginTop: "4px",
+                    padding: "8px 18px",
+                    border: "1px solid var(--border-hover)",
+                    background: "rgba(0, 0, 0, 0.4)",
+                    cursor: "pointer",
+                    letterSpacing: "0.06em",
+                  }}
+                >
+                  PLAY AGAIN
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Highscore centered below the playfield */}
+          <div
+            className="flex items-center justify-center gap-3"
+            style={{
+              fontFamily: "var(--font-space), sans-serif",
+              fontSize: "0.95rem",
+              color: "var(--text-muted)",
+              letterSpacing: "0.05em",
+            }}
+          >
+            HIGHSCORE: {highText}
+            {resetButton}
+          </div>
         </div>
       </div>
     </section>
