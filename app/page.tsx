@@ -7,6 +7,7 @@ import SynthSection from "./components/SynthSection";
 import SetsSection from "./components/SetsSection";
 import PhotoMarquee from "./components/PhotoMarquee";
 import AboutSection from "./components/AboutSection";
+import GameSection from "./components/GameSection";
 import DemoDropSection from "./components/DemoDropSection";
 import Footer from "./components/Footer";
 
@@ -24,6 +25,7 @@ export default function Home() {
           <SetsSection />
           <PhotoMarquee />
           <AboutSection />
+          <GameSection />
           <DemoDropSection />
         </main>
         <Footer />
