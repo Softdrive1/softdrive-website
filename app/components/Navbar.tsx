@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FaSpotify,
@@ -183,7 +182,7 @@ export default function Navbar() {
         <div className="flex items-center" style={{ gap: "32px" }}>
           <button
             onClick={() => scrollToSection("home")}
-            aria-label="Scroll to top"
+            aria-label="Softdrive — scroll to top"
             style={{
               background: "none",
               border: "none",
@@ -191,14 +190,26 @@ export default function Navbar() {
               cursor: "pointer",
             }}
           >
-            <Image
-              src="/logo-nav.png"
-              alt="Softdrive"
-              width={353}
-              height={120}
-              priority
+            {/* logo-nav.png used as alpha mask so the wordmark renders in the
+                same muted tone as the nav links (marginally brighter, so it
+                still leads the bar). */}
+            <span
+              aria-hidden="true"
               className="select-none"
-              style={{ height: "44px", width: "auto", display: "block" }}
+              style={{
+                display: "block",
+                height: "44px",
+                aspectRatio: "353 / 120",
+                background: "rgba(255,255,255,0.72)",
+                WebkitMaskImage: "url(/logo-nav.png)",
+                maskImage: "url(/logo-nav.png)",
+                WebkitMaskSize: "contain",
+                maskSize: "contain",
+                WebkitMaskRepeat: "no-repeat",
+                maskRepeat: "no-repeat",
+                WebkitMaskPosition: "center",
+                maskPosition: "center",
+              }}
             />
           </button>
 
