@@ -198,7 +198,7 @@ export default function Navbar() {
               className="select-none"
               style={{
                 display: "block",
-                height: "44px",
+                height: "28px",
                 aspectRatio: "353 / 120",
                 background: "rgba(255,255,255,0.72)",
                 WebkitMaskImage: "url(/logo-nav.png)",

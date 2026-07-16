@@ -84,9 +84,9 @@ function SynthModel() {
     return THREE.MathUtils.clamp((visibleWidth * fill) / length, 0.05, 2);
   }, [length, size]);
 
-  // Repaint mislabeled factory materials in Nord red: "Black.001" is the
-  // edge/side trim (node "Side.002", only user of that material), "Black" is
-  // the main body (node "Support", shared there only with "Screen", which
+  // Repaint mislabeled factory materials in muted wine red: "Black.001" is
+  // the edge/side trim (node "Side.002", only user of that material), "Black"
+  // is the main body (node "Support", shared there only with "Screen", which
   // stays untouched). Keys/knobs/buttons use their own materials.
   useEffect(() => {
     scene.traverse((obj) => {
@@ -96,8 +96,8 @@ function SynthModel() {
       for (const mat of mats) {
         const m = mat as THREE.MeshStandardMaterial;
         if (!m.color) continue;
-        if (m.name === "Black.001") m.color.set("#C8102E");
-        else if (m.name === "Black") m.color.set("#C8102E");
+        if (m.name === "Black.001" || m.name === "Black")
+          m.color.set("#7c363e");
       }
     });
   }, [scene]);

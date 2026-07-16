@@ -192,30 +192,32 @@ body::after {
 
 /* ── Demo Drop — white card ───────────────────────── */
 
+/* Solid white on purpose — no alpha, no backdrop blur, nothing from the
+   dither background may shine through. */
 .demo-card {
   background: #ffffff;
   border-radius: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid #e6e9ee;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
 }
 
 .demo-card .demo-label {
-  color: rgba(8, 8, 11, 0.65);
+  color: #45464c;
 }
 
 .demo-card .demo-input {
-  background: rgba(8, 8, 11, 0.04);
-  border-color: rgba(8, 8, 11, 0.16);
+  background: #ffffff;
+  border-color: #c4c9d2;
   color: #08080b;
 }
 
 .demo-card .demo-input::placeholder {
-  color: rgba(8, 8, 11, 0.35);
+  color: #9aa0aa;
 }
 
 .demo-card .demo-input:focus {
   border-color: #08080b;
-  box-shadow: 0 0 0 3px rgba(8, 8, 11, 0.1);
+  box-shadow: 0 0 0 3px #e8e9eb;
   background: #ffffff;
 }
 
