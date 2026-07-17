@@ -77,7 +77,14 @@ function SynthModel() {
     const dist = CAMERA_POS.length();
     const visibleWidth =
       2 * dist * Math.tan((CAMERA_FOV * Math.PI) / 360) * aspect;
-    const fill = aspect < 0.9 ? 1.0 : 0.62;
+    // Phone-width canvases get a near-full fill so the keys stay tappable.
+    // Keyed on canvas WIDTH, not aspect: the mobile frame is short (landscape
+    // aspect), so an aspect test would wrongly pick the desktop fill there.
+    // Not 1.0: the fit measures width at the ORIGIN plane, but the keyboard's
+    // front edge sits ~1.1 units closer to the camera and projects ~17% wider
+    // — at fill 1.0 the front keys clip at the canvas edges on iOS. 0.8 puts
+    // the front edge at ~92% of the width (~12px margin on a 390px phone).
+    const fill = size.width < 560 ? 0.8 : 0.62;
     // Clamp hard: at scale ≤ 2 the model's half-length stays inside the
     // camera distance, so a bad measurement can never put the camera
     // inside the model (which renders as full-width color bands).

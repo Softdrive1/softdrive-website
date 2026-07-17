@@ -7,33 +7,6 @@ export default function HeroSection() {
   const [loaded, setLoaded] = useState<[boolean, boolean]>([false, false]);
   const [active, setActive] = useState(0);
 
-  // SSR renders no logo; the spinning logo video mounts on the client once
-  // the engine is known. No PNG poster/fallback — the old static logo is
-  // wrong, so if the video fails, showing nothing is preferred. The two
-  // engines need different transparent-video formats and each mis-renders
-  // the other's as a black box, so we pick per engine rather than via
-  // <source> (Chrome-on-Mac can decode HEVC but drops its alpha).
-  const [useVideoLogo, setUseVideoLogo] = useState(false);
-  const [logoSrc, setLogoSrc] = useState("/softdrive-logo.webm");
-
-  useEffect(() => {
-    const ua = navigator.userAgent;
-    const isIOS =
-      /iP(hone|od|ad)/.test(ua) ||
-      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-    // Safari (desktop) UA contains "Safari" but not Chrome/Chromium/Firefox-on-iOS.
-    const isSafari = /^((?!chrome|android|crios|fxios|chromium).)*safari/i.test(ua);
-    // Defer the video mount to a callback so the initial client render
-    // still matches the server (empty), avoiding a hydration mismatch.
-    const raf = requestAnimationFrame(() => {
-      // WebKit (all iOS browsers + desktop Safari) renders HEVC-with-alpha but
-      // not VP9-alpha WebM; every other engine is the reverse.
-      if (isIOS || isSafari) setLogoSrc("/softdrive-logo.mp4");
-      setUseVideoLogo(true);
-    });
-    return () => cancelAnimationFrame(raf);
-  }, []);
-
   useEffect(() => {
     if (!loaded[0] || !loaded[1]) return;
     const id = setInterval(() => setActive((v) => (v === 0 ? 1 : 0)), 12000);
@@ -79,7 +52,11 @@ export default function HeroSection() {
         }}
       />
 
-      {/* Hero logo — spinning chrome video, nothing until it can play */}
+      {/* Hero logo — spinning chrome video. HEVC-alpha source FIRST so
+          Safari/iOS picks it (Safari composites the VP9-alpha WebM with
+          blown-out glow / white edge fringes); other engines fall through
+          to the WebM. No poster, no fallback image: if nothing plays,
+          showing nothing is preferred over the wrong logo. */}
       <motion.div
         className="relative z-20"
         initial={{ opacity: 0, scale: 1.06, filter: "blur(10px)" }}
@@ -87,24 +64,23 @@ export default function HeroSection() {
         transition={{ duration: 1.1, ease: [0.22, 0.61, 0.36, 1], delay: 0.15 }}
       >
         {/* aspect-ratio reserves the logo's box so the video doesn't shift
-            layout when it mounts */}
-        <div style={{ width: "min(504px, 98vw)", aspectRatio: "840 / 473" }}>
-          {useVideoLogo && (
-            <video
-              src={logoSrc}
-              autoPlay
-              loop
-              muted
-              playsInline
-              onError={() => setUseVideoLogo(false)}
-              style={{
-                width: "100%",
-                height: "auto",
-                display: "block",
-                background: "transparent",
-              }}
-            />
-          )}
+            layout when it mounts — must match the video files (v2: 540x960) */}
+        <div style={{ width: "min(504px, 98vw)", aspectRatio: "540 / 960" }}>
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            style={{
+              width: "100%",
+              height: "auto",
+              display: "block",
+              background: "transparent",
+            }}
+          >
+            <source src="/softdrive-logo.mp4" type="video/mp4; codecs=hvc1" />
+            <source src="/softdrive-logo.webm" type="video/webm" />
+          </video>
         </div>
       </motion.div>
     </section>
