@@ -27,8 +27,8 @@ export default function Home() {
           <PhotoMarquee />
           <AboutSection />
           <GameSection />
-          <DemoDropSection />
           <UnreleasedSection />
+          <DemoDropSection />
         </main>
         <Footer />
       </div>

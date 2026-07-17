@@ -10,6 +10,11 @@ import SectionHeading from "./SectionHeading";
 
 const CHAR_H = 155; // sprite height on screen (source PNG is 249x747)
 const CHAR_ASPECT = 249 / 747;
+// Defeated sprite (237x603, arms crossed) drawn at the same source-pixel
+// scale and bottom-anchored — the arms drop, the body doesn't shrink.
+const LOST_H = CHAR_H * (603 / 747);
+const LOST_ASPECT = 237 / 603;
+const LOST_SHAKE_MS = 450; // brief shake on the swap, then it stays still
 const HANDS_FRAC = 0.25; // top part of the sprite that catches
 const CATCH_PAD = 12; // px of forgiveness around the hands hitbox
 const DRIVE_SIZE = 42;
@@ -65,7 +70,10 @@ export default function GameSection() {
 
     let bgImg: HTMLImageElement | null = null;
     let charImg: HTMLImageElement | null = null;
+    let lostImg: HTMLImageElement | null = null;
     let driveImg: HTMLImageElement | null = null;
+    let lost = false;
+    let lostAnim = 1; // shake progress 0→1; 1 = settled
     let W = 0;
     let H = 0;
     let charX = 0;
@@ -92,6 +100,11 @@ export default function GameSection() {
     char.onload = () => {
       charImg = char;
       draw();
+    };
+    const lostChar = new Image();
+    lostChar.src = "/game/character-lost.png";
+    lostChar.onload = () => {
+      lostImg = lostChar;
     };
     const drv = new Image();
     drv.src = "/game/drive.png";
@@ -132,7 +145,13 @@ export default function GameSection() {
         }
       }
       // Character anchored bottom-center; a catch pulses its scale briefly.
-      if (charImg) {
+      // On game over the defeated sprite takes its place (same bottom edge),
+      // with a decaying horizontal shake while it settles.
+      if (lost && lostImg) {
+        const lostW = LOST_H * LOST_ASPECT;
+        const dx = Math.sin(lostAnim * Math.PI * 5) * 6 * (1 - lostAnim);
+        ctx.drawImage(lostImg, charX - lostW / 2 + dx, H - LOST_H, lostW, LOST_H);
+      } else if (charImg) {
         const s = 1 + 0.15 * pulse;
         ctx.save();
         ctx.translate(charX, H);
@@ -159,9 +178,21 @@ export default function GameSection() {
     function endGame() {
       if (!playing) return;
       playing = false;
+      lost = true;
+      lostAnim = 0;
       sync();
       setPhase("over");
       setPendingHigh(score > (highRef.current?.score ?? 0));
+      // The main loop is stopped now — run the short settle animation on
+      // its own rAF, then leave the sprite defeated until reset.
+      const start = performance.now();
+      const settle = (t: number) => {
+        if (!lost) return;
+        lostAnim = Math.min(1, (t - start) / LOST_SHAKE_MS);
+        draw();
+        if (lostAnim < 1) requestAnimationFrame(settle);
+      };
+      requestAnimationFrame(settle);
     }
 
     function step(dt: number) {
@@ -274,6 +305,8 @@ export default function GameSection() {
       pulse = 0;
       score = 0;
       playing = false;
+      lost = false;
+      lostAnim = 1;
       setCount(0);
       setPendingHigh(false);
       setNameInput("");
@@ -369,7 +402,9 @@ export default function GameSection() {
             style={{
               width: "min(560px, 100%)",
               height: "clamp(340px, 62svh, 600px)",
-              border: "1px solid var(--border)",
+              // Thin frame in the palette purple — same tone as the
+              // Unreleased card border, deliberately understated.
+              border: "1px solid rgba(134, 6, 168, 0.35)",
             }}
           >
             <canvas

@@ -2,16 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
 
 export default function HeroSection() {
   const [loaded, setLoaded] = useState<[boolean, boolean]>([false, false]);
   const [active, setActive] = useState(0);
 
-  // Start on the PNG (matches SSR), then upgrade to the spinning logo video on
-  // the client. The two engines need different transparent-video formats and
-  // each mis-renders the other's as a black box, so we pick per engine rather
-  // than via <source> (Chrome-on-Mac can decode HEVC but drops its alpha).
+  // SSR renders no logo; the spinning logo video mounts on the client once
+  // the engine is known. No PNG poster/fallback — the old static logo is
+  // wrong, so if the video fails, showing nothing is preferred. The two
+  // engines need different transparent-video formats and each mis-renders
+  // the other's as a black box, so we pick per engine rather than via
+  // <source> (Chrome-on-Mac can decode HEVC but drops its alpha).
   const [useVideoLogo, setUseVideoLogo] = useState(false);
   const [logoSrc, setLogoSrc] = useState("/softdrive-logo.webm");
 
@@ -22,8 +23,8 @@ export default function HeroSection() {
       (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
     // Safari (desktop) UA contains "Safari" but not Chrome/Chromium/Firefox-on-iOS.
     const isSafari = /^((?!chrome|android|crios|fxios|chromium).)*safari/i.test(ua);
-    // Defer the PNG→video upgrade to a callback so the initial client render
-    // still matches the server (PNG), avoiding a hydration mismatch.
+    // Defer the video mount to a callback so the initial client render
+    // still matches the server (empty), avoiding a hydration mismatch.
     const raf = requestAnimationFrame(() => {
       // WebKit (all iOS browsers + desktop Safari) renders HEVC-with-alpha but
       // not VP9-alpha WebM; every other engine is the reverse.
@@ -78,18 +79,19 @@ export default function HeroSection() {
         }}
       />
 
-      {/* Hero logo — spinning chrome WebM where supported, PNG fallback elsewhere */}
+      {/* Hero logo — spinning chrome video, nothing until it can play */}
       <motion.div
         className="relative z-20"
         initial={{ opacity: 0, scale: 1.06, filter: "blur(10px)" }}
         animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
         transition={{ duration: 1.1, ease: [0.22, 0.61, 0.36, 1], delay: 0.15 }}
       >
-        <div style={{ width: "min(504px, 98vw)" }}>
-          {useVideoLogo ? (
+        {/* aspect-ratio reserves the logo's box so the video doesn't shift
+            layout when it mounts */}
+        <div style={{ width: "min(504px, 98vw)", aspectRatio: "840 / 473" }}>
+          {useVideoLogo && (
             <video
               src={logoSrc}
-              poster="/logo.png"
               autoPlay
               loop
               muted
@@ -101,15 +103,6 @@ export default function HeroSection() {
                 display: "block",
                 background: "transparent",
               }}
-            />
-          ) : (
-            <Image
-              src="/logo.png"
-              alt="Softdrive"
-              width={840}
-              height={473}
-              priority
-              style={{ width: "100%", height: "auto", display: "block" }}
             />
           )}
         </div>

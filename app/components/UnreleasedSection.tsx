@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { FaPlay, FaPause, FaForward } from "react-icons/fa";
+import { FaPlay, FaPause, FaBackward, FaForward } from "react-icons/fa";
 import SectionHeading from "./SectionHeading";
 import {
   claimPlayback,
@@ -242,7 +242,7 @@ export default function UnreleasedSection() {
 
               {/* Timecodes */}
               <div
-                className="font-label flex justify-between"
+                className="font-label text-center"
                 style={{
                   fontSize: "11px",
                   color: "var(--text-muted)",
@@ -250,8 +250,7 @@ export default function UnreleasedSection() {
                   marginBottom: "16px",
                 }}
               >
-                <span>{fmt(position)}</span>
-                <span>{fmt(duration)}</span>
+                {fmt(position)} / {fmt(duration)}
               </div>
 
               {/* Controls */}
@@ -259,6 +258,29 @@ export default function UnreleasedSection() {
                 className="flex items-center justify-center"
                 style={{ gap: "18px" }}
               >
+                <motion.button
+                  type="button"
+                  disabled={!ready}
+                  aria-label="Previous track"
+                  whileTap={{ scale: 0.92 }}
+                  onClick={() => widgetRef.current?.prev()}
+                  style={{
+                    width: "44px",
+                    height: "44px",
+                    borderRadius: "50%",
+                    border: "1px solid rgba(255, 255, 255, 0.18)",
+                    background: "none",
+                    cursor: ready ? "pointer" : "default",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "var(--text-muted)",
+                    fontSize: "14px",
+                  }}
+                >
+                  <FaBackward />
+                </motion.button>
+
                 <motion.button
                   type="button"
                   disabled={!ready}

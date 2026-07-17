@@ -28,6 +28,7 @@ export interface SoundCloudWidget {
   bind(event: string, cb: (data?: unknown) => void): void;
   play(): void;
   pause(): void;
+  prev(): void;
   next(): void;
   seekTo(ms: number): void;
   getPosition(cb: (ms: number) => void): void;

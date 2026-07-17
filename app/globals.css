@@ -190,12 +190,13 @@ body::after {
   color: rgba(8, 8, 11, 0.6);
 }
 
-/* ── Demo Drop — white card ───────────────────────── */
+/* ── Demo Drop — light card ───────────────────────── */
 
-/* Solid white on purpose — no alpha, no backdrop blur, nothing from the
-   dither background may shine through. */
+/* Solid #f4f4f4 (same tone as the SoundCloud players) on purpose — no
+   alpha, no backdrop blur, nothing from the dither background may shine
+   through. */
 .demo-card {
-  background: #ffffff;
+  background: #f4f4f4;
   border-radius: 15px;
   border: 1px solid #e6e9ee;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
@@ -206,7 +207,7 @@ body::after {
 }
 
 .demo-card .demo-input {
-  background: #ffffff;
+  background: #f4f4f4;
   border-color: #c4c9d2;
   color: #08080b;
 }
@@ -218,7 +219,7 @@ body::after {
 .demo-card .demo-input:focus {
   border-color: #08080b;
   box-shadow: 0 0 0 3px #e8e9eb;
-  background: #ffffff;
+  background: #f4f4f4;
 }
 
 .demo-card .demo-input.has-error {
