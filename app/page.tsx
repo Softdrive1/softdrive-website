@@ -9,6 +9,7 @@ import PhotoMarquee from "./components/PhotoMarquee";
 import AboutSection from "./components/AboutSection";
 import GameSection from "./components/GameSection";
 import DemoDropSection from "./components/DemoDropSection";
+import UnreleasedSection from "./components/UnreleasedSection";
 import Footer from "./components/Footer";
 
 export default function Home() {
@@ -27,6 +28,7 @@ export default function Home() {
           <AboutSection />
           <GameSection />
           <DemoDropSection />
+          <UnreleasedSection />
         </main>
         <Footer />
       </div>

@@ -19,15 +19,32 @@ export function claimPlayback(current: Player) {
 
 /* ── Embed-API script loaders (one shared load per API) ─────────── */
 
+export interface SoundCloudSound {
+  title?: string;
+  duration?: number;
+}
+
 export interface SoundCloudWidget {
-  bind(event: string, cb: () => void): void;
+  bind(event: string, cb: (data?: unknown) => void): void;
+  play(): void;
   pause(): void;
+  next(): void;
+  seekTo(ms: number): void;
+  getPosition(cb: (ms: number) => void): void;
+  getDuration(cb: (ms: number) => void): void;
+  getCurrentSound(cb: (sound: SoundCloudSound | null) => void): void;
 }
 
 interface SoundCloudApi {
   Widget: {
     (el: HTMLIFrameElement): SoundCloudWidget;
-    Events: { PLAY: string };
+    Events: {
+      READY: string;
+      PLAY: string;
+      PAUSE: string;
+      PLAY_PROGRESS: string;
+      FINISH: string;
+    };
   };
 }
 
