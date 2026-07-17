@@ -36,6 +36,19 @@ export default function Footer() {
         >
           MrEliptik
         </a>
+        , CC BY 4.0 · “Arcade Machine” by{" "}
+        <a
+          href="https://sketchfab.com/3d-models/arcade-machine-69409b165c2c418c8f78a5b32cec5c02"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            color: "inherit",
+            textDecoration: "underline",
+            textUnderlineOffset: "2px",
+          }}
+        >
+          Erdem Dağdelen
+        </a>
         , CC BY 4.0
       </p>
     </footer>

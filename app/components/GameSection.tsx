@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+// aliased: plain `Image` must stay the DOM constructor for the game sprites
+import NextImage from "next/image";
 import SectionHeading from "./SectionHeading";
+import ArcadeCabinet, {
+  ASPECT,
+  MARQUEE_RECT,
+  SCREEN_RECT,
+} from "./ArcadeCabinet";
 
 /* "Catch the Drive" — plain 2D-canvas catch game, no libraries.
    Falling drives use /game/drive.png when present, otherwise the 💾
@@ -54,6 +61,18 @@ export default function GameSection() {
   const [high, setHigh] = useState<Highscore | null>(null);
   const [pendingHigh, setPendingHigh] = useState(false);
   const [nameInput, setNameInput] = useState("");
+  // Wide screens get the 3D arcade cabinet around the playfield. Below the
+  // breakpoint the cabinet would shrink the playfield to unplayable, so
+  // narrow screens keep the plain framing (and never fetch the 4.5MB GLB).
+  const [arcade, setArcade] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 900px)");
+    const apply = () => setArcade(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
 
   useEffect(() => {
     highRef.current = high;
@@ -395,18 +414,58 @@ export default function GameSection() {
           </div>
 
           {/* Explicit CSS size before the canvas mounts (never the 300x150
-              default) + svh so the mobile URL bar can't resize the canvas. */}
+              default) + svh so the mobile URL bar can't resize the canvas.
+              In arcade mode the outer div is sized by aspect-ratio (which
+              SCREEN_RECT's math depends on) and the game wrap sits on the
+              cabinet's screen. The wrap/canvas nodes must stay the same
+              elements across the mode switch — the game effect binds its
+              listeners and observers only once. */}
           <div
-            ref={wrapRef}
             className="relative"
-            style={{
-              width: "min(560px, 100%)",
-              height: "clamp(340px, 62svh, 600px)",
-              // Thin frame in the palette purple — same tone as the
-              // Unreleased card border, deliberately understated.
-              border: "1px solid rgba(134, 6, 168, 0.35)",
-            }}
+            style={
+              arcade
+                ? { width: "min(900px, 100%)", aspectRatio: String(ASPECT) }
+                : {
+                    width: "min(560px, 100%)",
+                    height: "clamp(340px, 62svh, 600px)",
+                  }
+            }
           >
+            {arcade && (
+              <>
+                <div className="absolute" style={{ inset: 0 }}>
+                  <ArcadeCabinet />
+                </div>
+                {/* SOFTDRIVE logo on the marquee panel */}
+                <div
+                  className="absolute"
+                  style={{ ...MARQUEE_RECT, pointerEvents: "none" }}
+                  aria-hidden="true"
+                >
+                  <NextImage
+                    src="/logo.png"
+                    alt=""
+                    fill
+                    sizes="650px"
+                    style={{ objectFit: "contain" }}
+                  />
+                </div>
+              </>
+            )}
+            <div
+              ref={wrapRef}
+              className="absolute"
+              style={
+                arcade
+                  ? { ...SCREEN_RECT, background: "#000" }
+                  : {
+                      inset: 0,
+                      // Thin frame in the palette purple — same tone as the
+                      // Unreleased card border, deliberately understated.
+                      border: "1px solid rgba(134, 6, 168, 0.35)",
+                    }
+              }
+            >
             <canvas
               ref={canvasRef}
               aria-label="Catch the Drive minigame"
@@ -509,6 +568,7 @@ export default function GameSection() {
                 </button>
               </div>
             )}
+            </div>
           </div>
 
           {/* Highscore centered below the playfield */}
