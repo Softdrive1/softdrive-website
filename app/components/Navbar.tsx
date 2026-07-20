@@ -11,10 +11,10 @@ import {
 } from "react-icons/fa";
 
 const NAV_LINKS = [
+  { label: "About", id: "about" },
   { label: "Releases", id: "releases" },
   { label: "Sets", id: "sets" },
-  { label: "About", id: "about" },
-  { label: "Demos", id: "demos" },
+  { label: "Dates", id: "dates" },
 ];
 
 type SocialItem = {

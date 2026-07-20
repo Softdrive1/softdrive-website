@@ -190,6 +190,26 @@ body::after {
   color: rgba(8, 8, 11, 0.6);
 }
 
+/* ── Upcoming Dates — light cards (same #f4f4f4 tone as the SoundCloud
+   players and the Demo Drop card) ─────────────────── */
+.date-card {
+  background: #f4f4f4;
+  border-radius: 15px;
+  border: 1px solid #e6e9ee;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  transition:
+    box-shadow 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    transform 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    border-color 0.38s ease;
+}
+
+a:hover > .date-card,
+.date-card:hover {
+  border-color: #c4c9d2;
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.6);
+  transform: translateY(-2px);
+}
+
 /* ── Demo Drop — light card ───────────────────────── */
 
 /* Solid #f4f4f4 (same tone as the SoundCloud players) on purpose — no
@@ -383,50 +403,75 @@ textarea.demo-input {
 /* ── Legal pages (/datenschutz) ───────────────────── */
 
 .legal {
-  max-width: 760px;
+  max-width: 720px;
   margin: 0 auto;
-  padding: 48px 24px 80px;
-  font-size: 15px;
-  line-height: 1.7;
-  color: var(--text-muted);
+  padding: 56px 24px 96px;
+  font-size: 15.5px;
+  line-height: 1.78;
+  /* Brighter than --text-muted (0.56): long legal copy needs real contrast. */
+  color: rgba(236, 238, 242, 0.74);
 }
 
 .legal h1 {
   font-family: var(--font-syne), "Space Grotesk", sans-serif;
   font-weight: 800;
   letter-spacing: -0.02em;
-  font-size: clamp(2rem, 5vw, 3rem);
+  font-size: clamp(2rem, 5vw, 2.85rem);
+  line-height: 1.1;
   color: var(--text);
-  margin-bottom: 36px;
+  margin-bottom: 28px;
 }
 
+/* Section headings get a hairline rule above them so the document reads as
+   discrete blocks rather than one long scroll. */
 .legal h2 {
   font-family: var(--font-syne), "Space Grotesk", sans-serif;
   font-weight: 700;
-  font-size: 1.3rem;
+  letter-spacing: -0.01em;
+  font-size: 1.35rem;
+  line-height: 1.25;
   color: var(--text);
-  margin: 44px 0 14px;
+  margin: 52px 0 16px;
+  padding-top: 40px;
+  border-top: 1px solid var(--border);
+}
+
+/* First heading (Präambel) sits right under the H1 — no rule/gap needed. */
+.legal h2:first-of-type {
+  margin-top: 8px;
+  padding-top: 0;
+  border-top: none;
 }
 
 .legal h3 {
-  font-size: 1.05rem;
+  font-family: var(--font-syne), "Space Grotesk", sans-serif;
+  font-size: 1.08rem;
   font-weight: 600;
   color: var(--text);
-  margin: 28px 0 10px;
+  margin: 30px 0 10px;
 }
 
 .legal p {
-  margin: 0 0 14px;
+  margin: 0 0 15px;
+}
+
+.legal strong {
+  color: rgba(236, 238, 242, 0.94);
+  font-weight: 600;
 }
 
 .legal ul {
   list-style: disc;
-  padding-left: 1.25em;
-  margin: 0 0 14px;
+  padding-left: 1.3em;
+  margin: 0 0 16px;
 }
 
 .legal li {
-  margin-bottom: 8px;
+  margin-bottom: 9px;
+}
+
+.legal li::marker {
+  color: var(--text-dim);
 }
 
 .legal a {
@@ -436,8 +481,35 @@ textarea.demo-input {
   overflow-wrap: anywhere;
 }
 
-.legal .seal {
-  margin-top: 44px;
-  font-size: 12px;
-  color: var(--text-dim);
+/* Table of contents — a clean link list, not underlined body links. */
+.legal ul.index {
+  list-style: none;
+  padding-left: 0;
+  margin: 10px 0 8px;
+}
+
+.legal ul.index li {
+  margin-bottom: 5px;
+}
+
+.legal .index-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.16s ease;
+}
+
+.legal .index-link:hover {
+  color: var(--accent);
+}
+
+@media (max-width: 640px) {
+  .legal {
+    padding: 44px 18px 72px;
+    font-size: 15px;
+  }
+  .legal h2 {
+    font-size: 1.2rem;
+    margin-top: 44px;
+    padding-top: 32px;
+  }
 }

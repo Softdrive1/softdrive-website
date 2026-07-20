@@ -11,12 +11,12 @@ type Gig = {
 };
 
 const GIGS: Gig[] = [
-  { date: "24.07.2026", event: "Bachblyten Festival", venue: "Flugplatz Schwesing, Husum" },
-  { date: "25.07.2026", event: "Die Blaue Stunde", venue: "Uebel & Gefährlich, Hamburg" },
-  { date: "15.08.2026", event: "Clubnacht", venue: "Fundbüro, Hamburg" },
-  { date: "21.08.2026", event: "Polyamor x Goatball", venue: "Lokschuppen, Berlin" },
+  { date: "24.07.2026", event: "Bachblyten Festival", venue: "Flugplatz Schwesing, Husum", link: "https://ra.co/events/2391666" },
+  { date: "25.07.2026", event: "Die Blaue Stunde", venue: "Uebel & Gefährlich, Hamburg", link: "https://ra.co/events/2490690" },
+  { date: "15.08.2026", event: "Clubnacht", venue: "Fundbureau, Hamburg" },
+  { date: "21.08.2026", event: "Polyamor x Goatball", venue: "Lokschuppen, Berlin", link: "https://ra.co/events/2332863" },
   { date: "22.08.2026", event: "Sachsentrance", venue: "Südpol, Hamburg" },
-  { date: "17.10.2026", event: "Dualism", venue: "About Blank, Berlin" },
+  { date: "17.10.2026", event: "Dualism", venue: "About Blank, Berlin", link: "https://ra.co/events/2477619" },
 ];
 
 const containerVariants: Variants = {
@@ -36,7 +36,7 @@ const itemVariants: Variants = {
 function GigCard({ gig }: { gig: Gig }) {
   const inner = (
     <div
-      className="release-card-inner flex flex-col sm:flex-row sm:items-center"
+      className="date-card flex flex-col sm:flex-row sm:items-center"
       style={{ padding: "18px 22px", gap: "10px 24px" }}
     >
       <span
@@ -47,12 +47,20 @@ function GigCard({ gig }: { gig: Gig }) {
           letterSpacing: "0.02em",
           whiteSpace: "nowrap",
           minWidth: "110px",
+          color: "#08080b",
         }}
       >
         {gig.date}
       </span>
       <span style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ display: "block", fontWeight: 600, fontSize: "15px" }}>
+        <span
+          style={{
+            display: "block",
+            fontWeight: 600,
+            fontSize: "15px",
+            color: "#08080b",
+          }}
+        >
           {gig.event ?? gig.venue}
         </span>
         {gig.event && (
@@ -61,7 +69,7 @@ function GigCard({ gig }: { gig: Gig }) {
               display: "block",
               marginTop: "2px",
               fontSize: "14px",
-              color: "var(--text-muted)",
+              color: "rgba(8, 8, 11, 0.55)",
             }}
           >
             {gig.venue}
@@ -73,7 +81,7 @@ function GigCard({ gig }: { gig: Gig }) {
           className="font-label"
           style={{
             fontSize: "13px",
-            color: "var(--accent)",
+            color: "#2b6a93",
             whiteSpace: "nowrap",
           }}
         >
@@ -85,10 +93,10 @@ function GigCard({ gig }: { gig: Gig }) {
 
   return gig.link ? (
     <a href={gig.link} target="_blank" rel="noopener noreferrer" className="block">
-      <div className="release-card-outer">{inner}</div>
+      {inner}
     </a>
   ) : (
-    <div className="release-card-outer">{inner}</div>
+    inner
   );
 }
 
