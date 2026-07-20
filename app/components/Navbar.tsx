@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FaSpotify,
@@ -87,55 +87,239 @@ function RAIcon({ size }: { size: number }) {
   );
 }
 
-function SocialIconLink({
-  item,
-  iconSize,
-  baseColor = "rgba(255,255,255,0.55)",
-}: {
-  item: SocialItem;
-  iconSize: number;
-  baseColor?: string;
-}) {
-  const isMail = item.href.startsWith("mailto:");
+/* ── Desktop section nav — sliding pill cursor ──────────
+   White cursor slides behind the hovered tab; the labels use
+   mix-blend-difference so they read dark over the pill and light
+   everywhere else. */
+type CursorPos = { left: number; width: number; opacity: number };
+
+function SlidingNav() {
+  const [position, setPosition] = useState<CursorPos>({
+    left: 0,
+    width: 0,
+    opacity: 0,
+  });
+
   return (
-    <a
-      href={item.href}
-      target={isMail ? undefined : "_blank"}
-      rel={isMail ? undefined : "noopener noreferrer"}
-      aria-label={item.label}
+    <ul
+      className="relative flex list-none"
+      onMouseLeave={() => setPosition((p) => ({ ...p, opacity: 0 }))}
       style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: iconSize + 18,
-        height: iconSize + 18,
-        color: baseColor,
-        textDecoration: "none",
-        flexShrink: 0,
-        transition: "color 0.16s ease",
-      }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLElement).style.color =
-          "rgba(255,255,255,0.95)";
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLElement).style.color = baseColor;
+        margin: 0,
+        padding: "4px",
+        borderRadius: "999px",
+        border: "1px solid rgba(255,255,255,0.12)",
+        background: "rgba(255,255,255,0.045)",
       }}
     >
-      <span
-        style={{
-          width: iconSize,
-          height: iconSize,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: iconSize,
-          lineHeight: 1,
-        }}
-      >
-        {item.id === "ra" ? <RAIcon size={iconSize} /> : item.icon}
-      </span>
-    </a>
+      {NAV_LINKS.map(({ label, id }) => (
+        <SlideTab
+          key={id}
+          setPosition={setPosition}
+          onSelect={() => scrollToSection(id)}
+        >
+          {label}
+        </SlideTab>
+      ))}
+      <SlideCursor position={position} />
+    </ul>
+  );
+}
+
+function SlideTab({
+  children,
+  setPosition,
+  onSelect,
+}: {
+  children: React.ReactNode;
+  setPosition: React.Dispatch<React.SetStateAction<CursorPos>>;
+  onSelect: () => void;
+}) {
+  const ref = useRef<HTMLLIElement>(null);
+  return (
+    <li
+      ref={ref}
+      onMouseEnter={() => {
+        if (!ref.current) return;
+        const { width } = ref.current.getBoundingClientRect();
+        setPosition({ left: ref.current.offsetLeft, width, opacity: 1 });
+      }}
+      onClick={onSelect}
+      className="relative z-10 block cursor-pointer select-none mix-blend-difference"
+      style={{
+        padding: "7px 18px",
+        fontSize: "10px",
+        letterSpacing: "0.18em",
+        textTransform: "uppercase",
+        fontWeight: 600,
+        color: "#ffffff",
+        whiteSpace: "nowrap",
+      }}
+    >
+      {children}
+    </li>
+  );
+}
+
+function SlideCursor({ position }: { position: CursorPos }) {
+  return (
+    <motion.li
+      animate={position}
+      transition={{ type: "spring", stiffness: 450, damping: 36 }}
+      className="absolute z-0 rounded-full"
+      style={{ top: 4, bottom: 4, left: 0, background: "#ffffff" }}
+    />
+  );
+}
+
+/* ── Social buttons — icon collapses to a labelled pill ─
+   First click reveals the name; a second click follows the link.
+   Clicking elsewhere collapses it. Used on both desktop and mobile. */
+const spanVariants = {
+  initial: { width: 0, opacity: 0 },
+  animate: { width: "auto", opacity: 1 },
+  exit: { width: 0, opacity: 0 },
+};
+
+// A short tween (not a spring): it animates a single layout property (the
+// label width) deterministically, which stays smooth even while the hero's
+// three.js scene keeps the main thread busy. Springs overshoot and add
+// per-frame layout jitter here.
+const tabTransition = {
+  duration: 0.28,
+  ease: [0.25, 0.46, 0.45, 0.94],
+} as const;
+
+function ExpandableSocials({
+  iconSize,
+  height,
+  align = "start",
+}: {
+  iconSize: number;
+  height: number;
+  align?: "start" | "center";
+}) {
+  const [selected, setSelected] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!selected) return;
+    const onDown = (e: MouseEvent | TouchEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setSelected(null);
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("touchstart", onDown);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("touchstart", onDown);
+    };
+  }, [selected]);
+
+  const idlePad = Math.round((height - iconSize) / 2);
+
+  return (
+    <div
+      ref={containerRef}
+      className="flex flex-wrap items-center"
+      style={{
+        gap: "6px",
+        justifyContent: align === "center" ? "center" : "flex-start",
+      }}
+    >
+      {SOCIAL_LINKS.map((item) => {
+        const isSel = selected === item.id;
+        const isMail = item.href.startsWith("mailto:");
+        return (
+          <motion.a
+            key={item.id}
+            href={item.href}
+            target={isMail ? undefined : "_blank"}
+            rel={isMail ? undefined : "noopener noreferrer"}
+            aria-label={item.label}
+            onClick={(e) => {
+              // First tap: just reveal the name. Second tap follows the link.
+              if (!isSel) {
+                e.preventDefault();
+                setSelected(item.id);
+              }
+            }}
+            initial={false}
+            animate={{
+              // Only paint properties animate here — no layout. The width
+              // change is carried entirely by the label wrapper below.
+              backgroundColor: isSel
+                ? "rgba(255,255,255,0.10)"
+                : "rgba(255,255,255,0)",
+              color: isSel ? "#cfe8fb" : "rgba(255,255,255,0.55)",
+            }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            whileHover={
+              isSel ? undefined : { color: "rgba(255,255,255,0.95)" }
+            }
+            className="relative flex items-center font-label"
+            style={{
+              height,
+              paddingLeft: idlePad,
+              paddingRight: idlePad,
+              borderRadius: "999px",
+              textDecoration: "none",
+              overflow: "hidden",
+              cursor: "pointer",
+              flexShrink: 0,
+            }}
+          >
+            <span
+              style={{
+                width: iconSize,
+                height: iconSize,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: iconSize,
+                lineHeight: 1,
+                flexShrink: 0,
+              }}
+            >
+              {item.id === "ra" ? <RAIcon size={iconSize} /> : item.icon}
+            </span>
+            <AnimatePresence initial={false}>
+              {isSel && (
+                <motion.span
+                  variants={spanVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  transition={tabTransition}
+                  className="overflow-hidden"
+                  style={{ display: "inline-flex" }}
+                >
+                  {/* The icon↔label spacing lives on this inner span's
+                      padding, so it's clipped at width 0 and slides out
+                      smoothly with the reveal — no instant margin pop. */}
+                  <span
+                    className="whitespace-nowrap"
+                    style={{
+                      paddingLeft: "11px",
+                      fontSize: "11px",
+                      fontWeight: 600,
+                      letterSpacing: "0.12em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {item.label}
+                  </span>
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </motion.a>
+        );
+      })}
+    </div>
   );
 }
 
@@ -178,7 +362,7 @@ export default function Navbar() {
           transition: "background 0.35s ease, border-color 0.35s ease",
         }}
       >
-        {/* Left: logo + nav links */}
+        {/* Left: logo + sliding section nav */}
         <div className="flex items-center" style={{ gap: "32px" }}>
           <button
             onClick={() => scrollToSection("home")}
@@ -214,50 +398,16 @@ export default function Navbar() {
           </button>
 
           {/* Section links — desktop only */}
-          <ul
-            className="hidden md:flex items-center list-none"
-            style={{ margin: 0, padding: 0, gap: "26px" }}
-          >
-            {NAV_LINKS.map(({ label, id }) => (
-              <li key={id}>
-                <button
-                  onClick={() => scrollToSection(id)}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    padding: 0,
-                    fontSize: "10px",
-                    letterSpacing: "0.18em",
-                    textTransform: "uppercase",
-                    fontWeight: 500,
-                    color: "rgba(255,255,255,0.58)",
-                    cursor: "pointer",
-                    transition: "color 0.16s ease",
-                    fontFamily: "inherit",
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.color =
-                      "rgba(255,255,255,0.95)";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.color =
-                      "rgba(255,255,255,0.58)";
-                  }}
-                >
-                  {label}
-                </button>
-              </li>
-            ))}
-          </ul>
+          <div className="hidden md:block">
+            <SlidingNav />
+          </div>
         </div>
 
         {/* Right: social icons (desktop) + hamburger (mobile) */}
         <div className="flex items-center">
-          {/* Social icons — desktop only */}
-          <div className="hidden md:flex items-center">
-            {SOCIAL_LINKS.map((item) => (
-              <SocialIconLink key={item.id} item={item} iconSize={16} />
-            ))}
+          {/* Social buttons — desktop only */}
+          <div className="hidden md:block">
+            <ExpandableSocials iconSize={16} height={34} />
           </div>
 
           {/* Hamburger — mobile only */}
@@ -360,21 +510,14 @@ export default function Navbar() {
               ))}
             </ul>
 
-            {/* Social icon row */}
+            {/* Social buttons — tap to reveal name */}
             <motion.div
-              className="flex items-center justify-center"
+              className="w-full px-8"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.28, duration: 0.28 }}
             >
-              {SOCIAL_LINKS.map((item) => (
-                <SocialIconLink
-                  key={item.id}
-                  item={item}
-                  iconSize={18}
-                  baseColor="rgba(255,255,255,0.48)"
-                />
-              ))}
+              <ExpandableSocials iconSize={20} height={46} align="center" />
             </motion.div>
           </motion.div>
         )}
