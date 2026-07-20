@@ -10,6 +10,7 @@ import AboutSection from "./components/AboutSection";
 import GameSection from "./components/GameSection";
 import DemoDropSection from "./components/DemoDropSection";
 import UnreleasedSection from "./components/UnreleasedSection";
+import DatesSection from "./components/DatesSection";
 import Footer from "./components/Footer";
 
 export default function Home() {
@@ -21,11 +22,12 @@ export default function Home() {
         <main>
           <HeroSection />
           <HardDriveSection />
+          <AboutSection />
           <ReleasesSection />
           <SynthSection />
           <SetsSection />
+          <DatesSection />
           <PhotoMarquee />
-          <AboutSection />
           <GameSection />
           <UnreleasedSection />
           <DemoDropSection />

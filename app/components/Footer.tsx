@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Footer() {
   return (
     <footer
@@ -13,6 +15,13 @@ export default function Footer() {
         style={{ fontSize: "13px", color: "var(--text-dim)", letterSpacing: "0.02em" }}
       >
         © 2026 Softdrive
+        {" · "}
+        <Link
+          href="/datenschutz"
+          style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: "2px" }}
+        >
+          Datenschutz
+        </Link>
       </p>
       <p
         className="font-label text-center"
