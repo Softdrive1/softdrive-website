@@ -384,6 +384,11 @@ textarea.demo-input {
 }
 ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
+/* Opt-out: hide the scrollbar on a specific scroll container (e.g. the
+   single-row social buttons in the mobile menu). */
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
 /* ── Accessibility ─────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {

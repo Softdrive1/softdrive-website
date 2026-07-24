@@ -11,7 +11,6 @@ type Gig = {
 };
 
 const GIGS: Gig[] = [
-  { date: "24.07.2026", event: "Bachblyten Festival", venue: "Flugplatz Schwesing, Husum", link: "https://ra.co/events/2391666" },
   { date: "25.07.2026", event: "Die Blaue Stunde", venue: "Uebel & Gefährlich, Hamburg", link: "https://ra.co/events/2490690" },
   { date: "15.08.2026", event: "Clubnacht", venue: "Fundbureau, Hamburg" },
   { date: "21.08.2026", event: "Polyamor x Goatball", venue: "Lokschuppen, Berlin", link: "https://ra.co/events/2332863" },
@@ -115,7 +114,7 @@ export default function DatesSection() {
         aria-hidden="true"
       />
       <div className="px-6 md:px-8" style={{ maxWidth: "1000px", marginLeft: "auto", marginRight: "auto" }}>
-        <SectionHeading>Upcoming Dates</SectionHeading>
+        <SectionHeading>Dates</SectionHeading>
 
         <motion.div
           className="flex flex-col"

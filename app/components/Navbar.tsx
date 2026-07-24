@@ -225,12 +225,23 @@ function ExpandableSocials({
   return (
     <div
       ref={containerRef}
-      className="flex flex-wrap items-center"
-      style={{
-        gap: "6px",
-        justifyContent: align === "center" ? "center" : "flex-start",
-      }}
+      className="no-scrollbar"
+      style={{ overflowX: "auto", overflowY: "hidden", maxWidth: "100%" }}
     >
+      {/* Single row: stays on one line and scrolls horizontally if an
+          expanded label runs wider than the screen — never wraps to a
+          second row. width:max-content + minWidth:100% keeps the icons
+          centred while they fit, then lets them overflow-and-scroll. */}
+      <div
+        className="flex items-center"
+        style={{
+          gap: "6px",
+          flexWrap: "nowrap",
+          width: "max-content",
+          minWidth: "100%",
+          justifyContent: align === "center" ? "center" : "flex-start",
+        }}
+      >
       {SOCIAL_LINKS.map((item) => {
         const isSel = selected === item.id;
         const isMail = item.href.startsWith("mailto:");
@@ -245,7 +256,18 @@ function ExpandableSocials({
               // First tap: just reveal the name. Second tap follows the link.
               if (!isSel) {
                 e.preventDefault();
+                const el = e.currentTarget;
                 setSelected(item.id);
+                // Once the label has finished expanding, pull the whole pill
+                // into view so a right-edge item (e.g. Press Kit) can't stay
+                // clipped off-screen on narrow mobile widths.
+                window.setTimeout(() => {
+                  el.scrollIntoView({
+                    behavior: "smooth",
+                    inline: "center",
+                    block: "nearest",
+                  });
+                }, 300);
               }
             }}
             initial={false}
@@ -319,6 +341,7 @@ function ExpandableSocials({
           </motion.a>
         );
       })}
+      </div>
     </div>
   );
 }
