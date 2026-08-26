@@ -107,13 +107,6 @@ export default function DemoDropSection() {
       className="relative"
       style={{ paddingTop: "6rem", paddingBottom: "9rem" }}
     >
-      <div
-        className="absolute top-0 left-0 right-0 h-px"
-        style={{
-          background: "linear-gradient(90deg, transparent, var(--border), transparent)",
-        }}
-        aria-hidden="true"
-      />
 
       <div
         className="px-6 md:px-8"

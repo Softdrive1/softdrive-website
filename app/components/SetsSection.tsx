@@ -38,13 +38,6 @@ export default function SetsSection() {
       className="relative"
       style={{ paddingTop: "3rem", paddingBottom: "6rem" }}
     >
-      <div
-        className="absolute top-0 left-0 right-0 h-px"
-        style={{
-          background: "linear-gradient(90deg, transparent, var(--border), transparent)",
-        }}
-        aria-hidden="true"
-      />
       <div className="px-6 md:px-8" style={{ maxWidth: "1000px", marginLeft: "auto", marginRight: "auto" }}>
         <SectionHeading>Sets</SectionHeading>
 
