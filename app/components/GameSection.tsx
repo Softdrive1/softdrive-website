@@ -89,28 +89,35 @@ export default function GameSection() {
 
     const charW = CHAR_H * CHAR_ASPECT;
 
-    const bg = new Image();
-    bg.src = "/game/game-bg.png";
-    bg.onload = () => {
-      bgImg = bg;
-      draw();
-    };
-    const char = new Image();
-    char.src = "/game/character.png";
-    char.onload = () => {
-      charImg = char;
-      draw();
-    };
-    const lostChar = new Image();
-    lostChar.src = "/game/character-lost.png";
-    lostChar.onload = () => {
-      lostImg = lostChar;
-    };
-    const drv = new Image();
-    drv.src = "/game/drive.png";
-    drv.onload = () => {
-      driveImg = drv;
-    };
+    // Defer the game image loads (WebP) until the section nears the viewport —
+    // triggered from the IntersectionObserver below. Runs once.
+    let assetsRequested = false;
+    function loadAssets() {
+      if (assetsRequested) return;
+      assetsRequested = true;
+      const bg = new Image();
+      bg.src = "/game/game-bg.webp";
+      bg.onload = () => {
+        bgImg = bg;
+        draw();
+      };
+      const char = new Image();
+      char.src = "/game/character.webp";
+      char.onload = () => {
+        charImg = char;
+        draw();
+      };
+      const lostChar = new Image();
+      lostChar.src = "/game/character-lost.webp";
+      lostChar.onload = () => {
+        lostImg = lostChar;
+      };
+      const drv = new Image();
+      drv.src = "/game/drive.png";
+      drv.onload = () => {
+        driveImg = drv;
+      };
+    }
 
     function draw() {
       if (!ctx) return;
@@ -265,6 +272,7 @@ export default function GameSection() {
     const io = new IntersectionObserver(
       ([entry]) => {
         inView = entry.isIntersecting;
+        if (entry.isIntersecting) loadAssets();
         sync();
       },
       { rootMargin: "250px" }
@@ -339,41 +347,12 @@ export default function GameSection() {
     }
   }
 
-  const highText = high ? `${high.score} — ${high.name}` : "—";
-
-  const resetButton = (
-    <button
-      type="button"
-      aria-label="Reset game"
-      onClick={() => resetRef.current()}
-      style={{
-        fontSize: "20px",
-        color: "var(--text-muted)",
-        lineHeight: 1,
-        background: "none",
-        border: "none",
-        cursor: "pointer",
-        padding: 0,
-      }}
-    >
-      ↺
-    </button>
-  );
-
   return (
     <section
       id="game"
       className="relative"
       style={{ paddingTop: "3rem", paddingBottom: "3rem" }}
     >
-      <div
-        className="absolute top-0 left-0 right-0 h-px"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent, var(--border), transparent)",
-        }}
-        aria-hidden="true"
-      />
 
       <div
         className="px-6 md:px-8"
@@ -381,149 +360,162 @@ export default function GameSection() {
       >
         <SectionHeading>Catch the Drive</SectionHeading>
 
-        <div className="flex flex-col items-center gap-3">
-          {/* Counter centered above the playfield */}
-          <div
-            className="font-display text-center"
-            style={{
-              fontSize: "clamp(1.3rem, 4vw, 1.8rem)",
-              color: "var(--text-muted)",
-              letterSpacing: "0.04em",
-            }}
-          >
-            DRIVES: {count}
-          </div>
+        <div className="flex flex-col items-center gap-4">
+          {/* Arcade cabinet — the bezel wraps a scoreboard header + the screen */}
+          <div className="relative" style={{ width: "min(560px, 100%)" }}>
+            {/* CRT/TV bezel — drawn outward via inset:-14px (see globals.css). */}
+            <div className="crt-frame" aria-hidden="true" />
 
-          {/* Explicit CSS size before the canvas mounts (never the 300x150
-              default) + svh so the mobile URL bar can't resize the canvas. */}
-          <div
-            ref={wrapRef}
-            className="relative"
-            style={{
-              width: "min(560px, 100%)",
-              height: "clamp(340px, 62svh, 600px)",
-              // Thin frame in the palette purple — same tone as the
-              // Unreleased card border, deliberately understated.
-              border: "1px solid rgba(134, 6, 168, 0.35)",
-            }}
-          >
-            <canvas
-              ref={canvasRef}
-              aria-label="Catch the Drive minigame"
-              style={{
-                width: "100%",
-                height: "100%",
-                display: "block",
-                touchAction: "none",
-              }}
-            />
-            {phase === "idle" && (
+            <div className="cabinet-inner">
+              {/* Scoreboard header — DRIVES · leader · HI-SCORE, one size + color */}
+              <div className="game-hud">
+                <div className="game-hud-stat game-hud-stat--left">
+                  <span className="game-hud-label">Drives</span>
+                  <span className="game-hud-value">
+                    {/* re-keyed on count so it pops on each catch */}
+                    <span key={count} className="arcade-pop">
+                      {String(count).padStart(3, "0")}
+                    </span>
+                  </span>
+                </div>
+                <div className="game-hud-stat game-hud-stat--center">
+                  <span className="game-hud-label">Player</span>
+                  <span className="game-hud-value game-hud-name">
+                    {high ? high.name : "—"}
+                  </span>
+                </div>
+                <div className="game-hud-stat game-hud-stat--right">
+                  <span className="game-hud-label">Hi-Score</span>
+                  <span className="game-hud-value">
+                    {high ? String(high.score).padStart(3, "0") : "—"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Playfield — same pixel size as before; svh so the mobile URL
+                  bar can't resize the canvas. */}
               <div
-                className="font-display absolute inset-0 flex items-center justify-center pointer-events-none select-none"
+                ref={wrapRef}
+                className="relative"
                 style={{
-                  fontSize: "clamp(1.1rem, 3.5vw, 1.5rem)",
-                  letterSpacing: "0.08em",
-                  textShadow: "0 2px 12px rgba(0,0,0,0.8)",
+                  width: "100%",
+                  height: "clamp(340px, 62svh, 600px)",
+                  borderRadius: "10px",
+                  overflow: "hidden",
                 }}
               >
-                {coarse ? "TAP TO START" : "CLICK TO START"}
-              </div>
-            )}
-            {phase === "over" && (
-              <div
-                className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center select-none"
-                style={{ background: "rgba(0, 0, 0, 0.55)" }}
-              >
-                <div
-                  className="font-display"
+                <canvas
+                  ref={canvasRef}
+                  aria-label="Catch the Drive minigame"
                   style={{
-                    fontSize: "clamp(1.5rem, 5vw, 2.2rem)",
-                    letterSpacing: "0.06em",
+                    position: "relative",
+                    zIndex: 1,
+                    width: "100%",
+                    height: "100%",
+                    display: "block",
+                    touchAction: "none",
                   }}
-                >
-                  GAME OVER
-                </div>
-                <div
-                  className="font-display"
-                  style={{ fontSize: "1.1rem", color: "var(--text-muted)" }}
-                >
-                  DRIVES: {count}
-                </div>
-                {pendingHigh && (
-                  <>
+                />
+                <div className="crt-screen-rim" aria-hidden="true" />
+                {phase === "idle" && (
+                  <div
+                    className="font-display absolute inset-0 flex items-center justify-center pointer-events-none select-none"
+                    style={{
+                      zIndex: 3,
+                      fontSize: "clamp(1.1rem, 3.5vw, 1.5rem)",
+                      letterSpacing: "0.08em",
+                      textShadow: "0 2px 12px rgba(0,0,0,0.8)",
+                    }}
+                  >
+                    {coarse ? "TAP TO START" : "CLICK TO START"}
+                  </div>
+                )}
+                {phase === "over" && (
+                  <div
+                    className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center select-none"
+                    style={{ zIndex: 3, background: "rgba(0, 0, 0, 0.55)" }}
+                  >
                     <div
                       className="font-display"
-                      style={{ fontSize: "0.95rem", letterSpacing: "0.08em" }}
+                      style={{
+                        fontSize: "clamp(1.5rem, 5vw, 2.2rem)",
+                        letterSpacing: "0.06em",
+                      }}
                     >
-                      NEW HIGHSCORE!
+                      GAME OVER
                     </div>
-                    <div className="flex items-center gap-2">
-                      <input
-                        value={nameInput}
-                        onChange={(e) =>
-                          setNameInput(e.target.value.slice(0, 12))
-                        }
-                        maxLength={12}
-                        placeholder="NAME"
-                        aria-label="Highscore name"
-                        style={{
-                          width: "9rem",
-                          padding: "6px 10px",
-                          background: "rgba(0, 0, 0, 0.5)",
-                          border: "1px solid var(--border-hover)",
-                          color: "inherit",
-                          fontSize: "0.95rem",
-                        }}
-                      />
-                      <button
-                        type="button"
-                        onClick={saveHighscore}
-                        className="font-display"
-                        style={{
-                          padding: "6px 14px",
-                          border: "1px solid var(--border-hover)",
-                          background: "rgba(0, 0, 0, 0.4)",
-                          cursor: "pointer",
-                          letterSpacing: "0.06em",
-                        }}
-                      >
-                        SAVE
-                      </button>
+                    <div
+                      className="font-display"
+                      style={{ fontSize: "1.1rem", color: "var(--text-muted)" }}
+                    >
+                      DRIVES: {count}
                     </div>
-                  </>
+                    {pendingHigh && (
+                      <>
+                        <div
+                          className="font-display"
+                          style={{ fontSize: "0.95rem", letterSpacing: "0.08em" }}
+                        >
+                          NEW HIGHSCORE!
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            value={nameInput}
+                            onChange={(e) =>
+                              setNameInput(e.target.value.slice(0, 12))
+                            }
+                            maxLength={12}
+                            placeholder="NAME"
+                            aria-label="Highscore name"
+                            style={{
+                              width: "9rem",
+                              padding: "6px 10px",
+                              background: "rgba(0, 0, 0, 0.5)",
+                              border: "1px solid var(--border-hover)",
+                              color: "inherit",
+                              fontSize: "0.95rem",
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={saveHighscore}
+                            className="font-display"
+                            style={{
+                              padding: "6px 14px",
+                              border: "1px solid var(--border-hover)",
+                              background: "rgba(0, 0, 0, 0.4)",
+                              cursor: "pointer",
+                              letterSpacing: "0.06em",
+                            }}
+                          >
+                            SAVE
+                          </button>
+                        </div>
+                      </>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => resetRef.current()}
+                      className="font-display"
+                      style={{
+                        marginTop: "4px",
+                        padding: "8px 18px",
+                        border: "1px solid var(--border-hover)",
+                        background: "rgba(0, 0, 0, 0.4)",
+                        cursor: "pointer",
+                        letterSpacing: "0.06em",
+                      }}
+                    >
+                      PLAY AGAIN
+                    </button>
+                  </div>
                 )}
-                <button
-                  type="button"
-                  onClick={() => resetRef.current()}
-                  className="font-display"
-                  style={{
-                    marginTop: "4px",
-                    padding: "8px 18px",
-                    border: "1px solid var(--border-hover)",
-                    background: "rgba(0, 0, 0, 0.4)",
-                    cursor: "pointer",
-                    letterSpacing: "0.06em",
-                  }}
-                >
-                  PLAY AGAIN
-                </button>
               </div>
-            )}
+            </div>
+
+            <span className="crt-led" aria-hidden="true" />
           </div>
 
-          {/* Highscore centered below the playfield */}
-          <div
-            className="flex items-center justify-center gap-3"
-            style={{
-              fontFamily: "var(--font-space), sans-serif",
-              fontSize: "0.95rem",
-              color: "var(--text-muted)",
-              letterSpacing: "0.05em",
-            }}
-          >
-            HIGHSCORE: {highText}
-            {resetButton}
-          </div>
         </div>
       </div>
     </section>

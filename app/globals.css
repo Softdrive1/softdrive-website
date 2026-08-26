@@ -210,6 +210,185 @@ a:hover > .date-card,
   transform: translateY(-2px);
 }
 
+/* ── Past Events — dark glass (archival), collapsed under upcoming ───── */
+.date-card--past {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+}
+
+a:hover > .date-card--past,
+.date-card--past:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px);
+}
+
+.past-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 20px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
+  color: var(--text-muted);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color 0.3s ease,
+    color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.past-toggle:hover {
+  border-color: var(--border-hover);
+  color: var(--text);
+  box-shadow: 0 0 22px var(--accent-glow);
+}
+
+.past-toggle .past-count {
+  color: var(--text-dim);
+}
+
+.past-toggle .past-chevron {
+  transition: transform 0.34s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.past-toggle[aria-expanded="true"] .past-chevron {
+  transform: rotate(180deg);
+}
+
+/* ── "Catch the Drive" — CRT/TV bezel ─────────────────────────
+   Drawn OUTWARD (inset: -14px) into the empty margin around the game, so the
+   screen/canvas keeps its exact size — the frame never eats into the playfield. */
+.crt-frame {
+  position: absolute;
+  inset: -14px;
+  z-index: 0;
+  border-radius: 20px;
+  background: linear-gradient(155deg, #2b2340 0%, #17121f 52%, #0b0912 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.6),
+    0 12px 34px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(134, 6, 168, 0.4);
+  pointer-events: none;
+}
+
+/* Crisp recessed-screen edge over the canvas (purely cosmetic, no pointer). */
+.crt-screen-rim {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: 10px;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.85),
+    inset 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Little cyan power LED in the bottom bezel. */
+.crt-led {
+  position: absolute;
+  z-index: 4;
+  right: 16px;
+  bottom: -9px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #7ec8e3;
+  box-shadow: 0 0 6px 1px rgba(126, 200, 227, 0.8);
+  pointer-events: none;
+}
+
+/* ── "Catch the Drive" — cabinet scoreboard header ─────────────
+   A dark strip at the top of the cabinet, inside the bezel (the "screen"
+   extended upward). Three equal cells — DRIVES · leader name · HI-SCORE —
+   all the same size and the same cyan, so the whole thing reads as one unit. */
+.cabinet-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 7px; /* the bezel color shows through this gap between header + screen */
+}
+
+.game-hud {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: end;
+  gap: 12px;
+  padding: 13px 22px;
+  /* Same purple hue + gradient character as the bezel frame, but a clear step
+     darker so it reads recessed and lifts off the rim (not the near-black jump). */
+  background: linear-gradient(180deg, #1b1728, #0f0b15);
+  border-radius: 10px;
+}
+
+.game-hud-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.game-hud-stat--left { align-items: flex-start; }
+.game-hud-stat--center { align-items: center; }
+.game-hud-stat--right { align-items: flex-end; }
+
+.game-hud-label {
+  font-family: var(--font-space), sans-serif;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.game-hud-value {
+  font-family: var(--font-space), sans-serif;
+  font-size: clamp(1.15rem, 4.2vw, 1.5rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  white-space: nowrap;
+  text-transform: uppercase;
+  color: #e8ebf1;
+  text-shadow:
+    0 0 9px rgba(205, 215, 232, 0.42),
+    0 0 18px rgba(205, 215, 232, 0.17);
+}
+
+/* Leader name (center) breathes a gentle glow. */
+@keyframes hudNameGlow {
+  0%, 100% {
+    opacity: 0.9;
+    text-shadow: 0 0 7px rgba(205, 215, 232, 0.3), 0 0 16px rgba(205, 215, 232, 0.12);
+  }
+  50% {
+    opacity: 1;
+    text-shadow: 0 0 11px rgba(205, 215, 232, 0.57), 0 0 24px rgba(205, 215, 232, 0.27);
+  }
+}
+.game-hud-name {
+  animation: hudNameGlow 2.4s ease-in-out infinite;
+}
+
+/* Live score pops each time it ticks up (re-keyed on the count in JSX). */
+@keyframes arcadePop {
+  0% { transform: scale(1); }
+  32% { transform: scale(1.24); filter: brightness(1.6); }
+  100% { transform: scale(1); }
+}
+.arcade-pop {
+  display: inline-block;
+  animation: arcadePop 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
 /* ── Demo Drop — light card ───────────────────────── */
 
 /* Solid #f4f4f4 (same tone as the SoundCloud players) on purpose — no
@@ -339,19 +518,7 @@ textarea.demo-input {
 .marquee-track {
   display: flex;
   width: max-content;
-  animation-name: marquee-scroll;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
   will-change: transform;
-}
-
-.marquee-row:hover .marquee-track {
-  animation-play-state: paused;
-}
-
-@keyframes marquee-scroll {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
 }
 
 .marquee-photo {
