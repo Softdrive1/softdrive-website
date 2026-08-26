@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import SectionHeading from "./SectionHeading";
 import { installAudioUnlock, preloadSamples } from "./synthAudio";
@@ -16,25 +16,37 @@ const SynthScene = dynamic(() => import("./SynthScene"), {
 });
 
 export default function SynthSection() {
+  const sectionRef = useRef<HTMLElement>(null);
+
   useEffect(() => {
-    preloadSamples();
     installAudioUnlock();
+    // Defer the ~3 MB of synth samples until the section nears the viewport,
+    // rather than fetching them on initial page load. The canvas/GLB is left
+    // mounted on load on purpose (see the note above).
+    const el = sectionRef.current;
+    if (!el) return;
+    let done = false;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !done) {
+          done = true;
+          preloadSamples();
+          io.disconnect();
+        }
+      },
+      { rootMargin: "400px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
   }, []);
 
   return (
     <section
+      ref={sectionRef}
       id="play"
       className="relative"
       style={{ paddingTop: "3rem", paddingBottom: "3rem" }}
     >
-      <div
-        className="absolute top-0 left-0 right-0 h-px"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent, var(--border), transparent)",
-        }}
-        aria-hidden="true"
-      />
 
       <div
         className="px-6 md:px-8"

@@ -3,6 +3,11 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Hide the floating Next.js dev-tools badge (dev-only overlay, bottom-left)
   devIndicators: false,
+  // Serve next/image output as AVIF (then WebP) — smaller than the default
+  // WebP-only for the PhotoMarquee photos, same resolution.
+  images: {
+    formats: ["image/avif", "image/webp"],
+  },
   // Let phones on the local network load the dev server (device testing)
   // DHCP vergibt gern neue IPs — bei "nur der Hero lädt auf dem iPhone"
   // zuerst prüfen, ob die aktuelle Mac-IP (ipconfig getifaddr en0) hier steht.
