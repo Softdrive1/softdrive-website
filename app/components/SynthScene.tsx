@@ -103,8 +103,9 @@ function SynthModel() {
       for (const mat of mats) {
         const m = mat as THREE.MeshStandardMaterial;
         if (!m.color) continue;
+        // Same dark purple as the game's CRT bezel frame (#241e33).
         if (m.name === "Black.001" || m.name === "Black")
-          m.color.set("#7c363e");
+          m.color.set("#241e33");
       }
     });
   }, [scene]);
