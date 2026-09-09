@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
 /* ── Analog film photos, endless two-row marquee ─────── */
@@ -36,10 +36,12 @@ function Strip({
   photos,
   duration,
   reverse = false,
+  eager = false,
 }: {
   photos: Photo[];
   duration: number;
   reverse?: boolean;
+  eager?: boolean;
 }) {
   const rowRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -146,6 +148,7 @@ function Strip({
             aria-hidden={i >= photos.length}
             className="marquee-photo"
             sizes="400px"
+            loading={eager ? "eager" : "lazy"}
             draggable={false}
           />
         ))}
@@ -155,8 +158,30 @@ function Strip({
 }
 
 export default function PhotoMarquee() {
+  const sectionRef = useRef<HTMLElement>(null);
+  // Dragging pulls photos in from off-screen far faster than lazy loading can
+  // fetch them, so the strips showed gaps. Once the section comes near, every
+  // photo is loaded for good — and nothing is fetched before that.
+  const [eager, setEager] = useState(false);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        setEager(true);
+        io.disconnect(); // one-way: stays loaded once armed
+      },
+      { rootMargin: "600px" } // arm before the section is actually reached
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
     <section
+      ref={sectionRef}
       aria-label="Analog photos"
       style={{
         paddingTop: "72px",
@@ -166,8 +191,8 @@ export default function PhotoMarquee() {
         gap: "18px",
       }}
     >
-      <Strip photos={ROW_A} duration={70} />
-      <Strip photos={ROW_B} duration={88} reverse />
+      <Strip photos={ROW_A} duration={70} eager={eager} />
+      <Strip photos={ROW_B} duration={88} reverse eager={eager} />
     </section>
   );
 }
