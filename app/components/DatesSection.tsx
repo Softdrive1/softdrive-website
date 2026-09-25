@@ -19,6 +19,7 @@ const GIGS: Gig[] = [
   { date: "23.08.2026", event: "Polyamor x Goatball", venue: "Lokschuppen, Berlin", link: "https://ra.co/events/2332863" },
   { date: "22.08.2026", event: "Sachsentrance", venue: "Südpol, Hamburg", link: "https://sachsentrance.com/events/event/sachsentrance-sommerfest-suedpol/" },
   { date: "05.09.2026", event: "Trybe Summer Closing", venue: "Fundbureau, Hamburg", link: "https://ra.co/events/2498107" },
+  { date: "03.10.2026", event: "Clubnacht", venue: "Fundbureau, Hamburg", link: "https://ra.co/events/2540867" },
   { date: "17.10.2026", event: "Dualism", venue: "About Blank, Berlin", link: "https://ra.co/events/2477619" },
   { date: "31.10.2026", event: "G Spot", venue: "Fundbureau, Hamburg" }, // link pending
   { date: "07.11.2026", event: "Trance for Friends", venue: "La Cova, Hamburg" }, // link pending
