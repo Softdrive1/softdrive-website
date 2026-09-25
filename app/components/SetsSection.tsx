@@ -6,6 +6,11 @@ import SoundCloudPlayer from "./SoundCloudPlayer";
 
 const SETS = [
   {
+    id: "sachsentrance-2026",
+    title: "Sachsentrance at Südpol 2026",
+    scUrl: "https://soundcloud.com/softdrive/softdrive-sachsentrance-at",
+  },
+  {
     id: "ver-x-teletech",
     title: "VER X TELETECH",
     scUrl: "https://soundcloud.com/softdrive/ver-x-teletech-2",
