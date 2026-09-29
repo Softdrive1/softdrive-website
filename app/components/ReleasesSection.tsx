@@ -54,6 +54,87 @@ const RELEASES: Release[] = [
   },
 ];
 
+/* Upcoming release with a pre-save link — sits above the released tracks and
+   mirrors the Spotify embed below it (152 px, artwork left, tinted from the
+   cover). Remove, or move into RELEASES as a Spotify track, once it is out. */
+const PRESAVE = {
+  title: "How To Save A Life",
+  artists: "DJ Tallboy, Trancemaster Krause, Softdrive",
+  url: "https://hypeddit.com/tallboy-trancy-softdrive/howtosavealife",
+  cover: "/covers/how-to-save-a-life.webp",
+  tint: "#233a5e",
+};
+
+function PreSaveCard() {
+  return (
+    <a
+      href={PRESAVE.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block"
+      style={{
+        height: "152px",
+        padding: "16px",
+        display: "flex",
+        gap: "16px",
+        background: PRESAVE.tint,
+        color: "#ffffff",
+      }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={PRESAVE.cover}
+        alt={`${PRESAVE.title} cover`}
+        width={120}
+        height={120}
+        style={{ width: "120px", height: "120px", borderRadius: "8px", flex: "none", objectFit: "cover" }}
+      />
+      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
+        <span
+          style={{
+            fontWeight: 700,
+            fontSize: "16px",
+            lineHeight: 1.25,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {PRESAVE.title}
+        </span>
+        <span
+          style={{
+            marginTop: "4px",
+            fontSize: "13px",
+            color: "rgba(255, 255, 255, 0.7)",
+            overflow: "hidden",
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+          }}
+        >
+          {PRESAVE.artists}
+        </span>
+        <span
+          style={{
+            marginTop: "auto",
+            alignSelf: "flex-end",
+            fontSize: "13px",
+            fontWeight: 700,
+            color: "#08080b",
+            background: "#ffffff",
+            borderRadius: "999px",
+            padding: "8px 16px",
+            whiteSpace: "nowrap",
+          }}
+        >
+          Pre-Save
+        </span>
+      </div>
+    </a>
+  );
+}
+
 const containerVariants: Variants = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.09 } },
@@ -90,6 +171,13 @@ export default function ReleasesSection() {
           whileInView="visible"
           viewport={{ once: true, margin: "-60px" }}
         >
+            <motion.div variants={itemVariants}>
+              <div className="release-card-outer">
+                <div className="release-card-inner">
+                  <PreSaveCard />
+                </div>
+              </div>
+            </motion.div>
             {RELEASES.map((release) => (
               <motion.div key={release.id} variants={itemVariants}>
                 <div className="release-card-outer">
