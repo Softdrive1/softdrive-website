@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Syne, Inter, Space_Grotesk } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 // Display — wide techno grotesque, carries the chrome headings
@@ -48,7 +49,14 @@ export default function RootLayout({
       lang="en"
       className={`${syne.variable} ${inter.variable} ${spaceGrotesk.variable} h-full`}
     >
-      <body className="min-h-dvh">{children}</body>
+      <body className="min-h-dvh">
+        {children}
+        {/* Metricool — Besucherzahlen neben den Social-Zahlen im selben Dashboard.
+            afterInteractive: lädt erst, wenn die Seite steht, blockiert nichts. */}
+        <Script id="metricool" strategy="afterInteractive">
+          {`(function(){var h=document.getElementsByTagName("head")[0],s=document.createElement("script");s.type="text/javascript";s.src="https://tracker.metricool.com/resources/be.js";s.onload=function(){beTracker.t({hash:"85fc3a03187abc6aa7aeb35237e3e3b3"})};h.appendChild(s)})();`}
+        </Script>
+      </body>
     </html>
   );
 }
