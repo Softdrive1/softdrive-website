@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import { motion } from "framer-motion";
 import { FaVolumeMute, FaVolumeUp } from "react-icons/fa";
 import SectionHeading from "./SectionHeading";
@@ -22,6 +22,8 @@ const DEMO_SRC: string | null = "/videos/softdrive-rhythm-demo.mp4";
    file never starts. Doing it the other way round (link to Ko-fi, download
    by script) silently loses the download on mobile: opening the new tab
    cancels the synthetic click. */
+const NEVER_CHANGES = () => () => {};
+
 function openKofi(e: React.MouseEvent<HTMLAnchorElement>) {
   if (e.defaultPrevented) return;
   const tab = window.open(KOFI_URL, "_blank", "noopener,noreferrer");
@@ -61,6 +63,15 @@ function press(e: React.MouseEvent<HTMLElement>, on: boolean) {
 export default function PluginsSection() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(true);
+  /* Instagram's in-app browser is a WebView without a download manager:
+     tapping either button does nothing at all. Nothing on our side can
+     force the download, so we say so. Checked after mount, never during
+     SSR — a server/client difference here would be a hydration error. */
+  const inInstagram = useSyncExternalStore(
+    NEVER_CHANGES,
+    () => /Instagram/i.test(navigator.userAgent),
+    () => false
+  );
 
   function toggleSound() {
     const v = videoRef.current;
@@ -274,6 +285,21 @@ export default function PluginsSection() {
                     Just the download
                   </a>
                 </div>
+
+                {inInstagram && (
+                  <p
+                    style={{
+                      marginTop: "14px",
+                      fontSize: "13px",
+                      lineHeight: 1.5,
+                      color: "rgba(8, 8, 11, 0.55)",
+                    }}
+                  >
+                    Instagram&rsquo;s browser can&rsquo;t save files. Tap
+                    &nbsp;⋯&nbsp; at the top right and choose &ldquo;Open in
+                    browser&rdquo;.
+                  </p>
+                )}
               </div>
             </div>
           </div>
