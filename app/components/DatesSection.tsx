@@ -22,7 +22,9 @@ const GIGS: Gig[] = [
   { date: "03.10.2026", event: "Clubnacht", venue: "Fundbureau, Hamburg", link: "https://ra.co/events/2540867" },
   { date: "17.10.2026", event: "Dualism", venue: "About Blank, Berlin", link: "https://ra.co/events/2477619" },
   { date: "31.10.2026", event: "G Spot", venue: "Fundbureau, Hamburg", link: "https://xceed.me/de/hamburg/event/g-spot-halloween-fundbureau/245299" },
-  { date: "07.11.2026", event: "Trance for Friends", venue: "La Cova, Hamburg" }, // link pending
+  { date: "07.11.2026", event: "Trance for Friends", venue: "La Cova, Hamburg", link: "https://ra.co/events/2555664" },
+  { date: "20.11.2026", event: "Trancelator", venue: "Uebel & Gefährlich, Hamburg", link: "https://ra.co/events/2562994" },
+  { date: "25.11.2026", event: "TBA", venue: "Fundbureau, Hamburg" }, // link pending
   { date: "31.12.2026", event: "NYE", venue: "Edelfettwerk, Hamburg" }, // link pending
 
   // ── Past-event highlights (from Notion + RA, cross-checked) ──
