@@ -17,13 +17,21 @@ const DOWNLOAD_NAME = "Softdrive Rhythm.amxd";
    swapping, the original is 63 MB. */
 const DEMO_SRC: string | null = "/videos/softdrive-rhythm-demo.mp4";
 
-function triggerDownload() {
-  const a = document.createElement("a");
-  a.href = DOWNLOAD_HREF;
-  a.download = DOWNLOAD_NAME;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
+/* The support button is a plain download link — that path works on every
+   phone. Ko-fi is opened on top of it and must NOT preventDefault, or the
+   file never starts. Doing it the other way round (link to Ko-fi, download
+   by script) silently loses the download on mobile: opening the new tab
+   cancels the synthetic click. */
+function openKofi(e: React.MouseEvent<HTMLAnchorElement>) {
+  if (e.defaultPrevented) return;
+  const tab = window.open(KOFI_URL, "_blank", "noopener,noreferrer");
+  /* Popup blocked (common on iOS): send this tab instead, with enough delay
+     for the download to have started. */
+  if (!tab) {
+    window.setTimeout(() => {
+      window.location.href = KOFI_URL;
+    }, 1200);
+  }
 }
 
 const BUTTON_BASE: React.CSSProperties = {
@@ -233,10 +241,9 @@ export default function PluginsSection() {
                   {/* Opens Ko-fi in a new tab (real anchor, so no popup
                       blocker) and starts the same download on click. */}
                   <a
-                    href={KOFI_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={triggerDownload}
+                    href={DOWNLOAD_HREF}
+                    download={DOWNLOAD_NAME}
+                    onClick={openKofi}
                     className="w-full md:w-auto"
                     style={{
                       ...BUTTON_BASE,
