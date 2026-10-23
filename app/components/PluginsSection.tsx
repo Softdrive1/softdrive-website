@@ -180,7 +180,10 @@ export default function PluginsSection() {
               </div>
 
               {/* ── Copy + buttons ── */}
-              <div style={{ flex: 1, minWidth: 0 }}>
+              <div
+                className="text-center md:text-left"
+                style={{ flex: 1, minWidth: 0 }}
+              >
                 {/* Name — deliberately not the display font: the chrome
                     section heading right above already carries that weight. */}
                 <h3
@@ -223,7 +226,10 @@ export default function PluginsSection() {
                   any sound into an idea.
                 </p>
 
-                <div className="flex flex-col sm:flex-row" style={{ gap: "12px" }}>
+                <div
+                  className="flex flex-col md:flex-row justify-center md:justify-start"
+                  style={{ gap: "12px" }}
+                >
                   {/* Opens Ko-fi in a new tab (real anchor, so no popup
                       blocker) and starts the same download on click. */}
                   <a
@@ -231,7 +237,7 @@ export default function PluginsSection() {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={triggerDownload}
-                    className="w-full sm:w-auto"
+                    className="w-full md:w-auto"
                     style={{
                       ...BUTTON_BASE,
                       background: "#08080b",
@@ -248,7 +254,7 @@ export default function PluginsSection() {
                   <a
                     href={DOWNLOAD_HREF}
                     download={DOWNLOAD_NAME}
-                    className="w-full sm:w-auto"
+                    className="w-full md:w-auto"
                     style={{
                       ...BUTTON_BASE,
                       background: "transparent",
