@@ -8,6 +8,7 @@ import SetsSection from "./components/SetsSection";
 import PhotoMarquee from "./components/PhotoMarquee";
 import AboutSection from "./components/AboutSection";
 import GameSection from "./components/GameSection";
+import PluginsSection from "./components/PluginsSection";
 import DemoDropSection from "./components/DemoDropSection";
 import UnreleasedSection from "./components/UnreleasedSection";
 import DatesSection from "./components/DatesSection";
@@ -29,6 +30,7 @@ export default function Home() {
           <DatesSection />
           <PhotoMarquee />
           <GameSection />
+          <PluginsSection />
           <UnreleasedSection />
           <DemoDropSection />
         </main>

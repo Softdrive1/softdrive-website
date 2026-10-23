@@ -15,6 +15,7 @@ const NAV_LINKS = [
   { label: "Releases", id: "releases" },
   { label: "Sets", id: "sets" },
   { label: "Dates", id: "dates" },
+  { label: "Plugins", id: "plugins" },
 ];
 
 type SocialItem = {
