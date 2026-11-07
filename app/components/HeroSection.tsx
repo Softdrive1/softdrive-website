@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 
 const VIDEO_SRCS = ["/videos/video1.mp4", "/videos/video2.mp4"] as const;
@@ -12,6 +12,37 @@ export default function HeroSection() {
   // give it a src — and thus don't fetch it — until video1 is up and the main
   // thread is idle. Keeps ~8 MB off the critical initial load.
   const [loadSecond, setLoadSecond] = useState(false);
+  const videos = useRef<[HTMLVideoElement | null, HTMLVideoElement | null]>([null, null]);
+
+  const markLoaded = useCallback((i: 0 | 1) => {
+    setLoaded((prev) =>
+      prev[i] ? prev : i === 0 ? [true, prev[1]] : [prev[0], true]
+    );
+  }, []);
+
+  // The element is in the server HTML, so the browser may finish decoding
+  // BEFORE React hydrates and attaches onLoadedData — typically on a reload,
+  // when the file comes from cache. That event is then gone for good, and
+  // waiting for it left the hero permanently black. So don't trust the event
+  // alone: read the element's own readyState until both videos report data.
+  // Self-cancelling, and it also recovers a bfcache restore.
+  useEffect(() => {
+    if (loaded[0] && loaded[1]) return;
+    const check = () => {
+      videos.current.forEach((v, i) => {
+        if (v && v.readyState >= 2) markLoaded(i as 0 | 1);
+      });
+    };
+    check();
+    const id = window.setInterval(check, 400);
+    return () => window.clearInterval(id);
+  }, [loaded, loadSecond, markLoaded]);
+
+  // Autoplay can be dropped when the element is hydrated rather than parsed.
+  // Rejection is expected and harmless (e.g. iOS Low Power Mode).
+  useEffect(() => {
+    videos.current.forEach((v) => void v?.play().catch(() => {}));
+  }, [loadSecond]);
 
   useEffect(() => {
     if (!loaded[0] || loadSecond) return;
@@ -31,14 +62,6 @@ export default function HeroSection() {
     return () => clearInterval(id);
   }, [loaded]);
 
-  function markLoaded(i: 0 | 1) {
-    setLoaded((prev) => {
-      const next: [boolean, boolean] = [prev[0], prev[1]];
-      next[i] = true;
-      return next;
-    });
-  }
-
   return (
     <section
       id="home"
@@ -51,6 +74,9 @@ export default function HeroSection() {
       {VIDEO_SRCS.map((src, i) => (
         <motion.video
           key={src}
+          ref={(el) => {
+            videos.current[i as 0 | 1] = el;
+          }}
           src={i === 0 || loadSecond ? src : undefined}
           preload={i === 0 ? "auto" : "none"}
           autoPlay
@@ -58,8 +84,27 @@ export default function HeroSection() {
           loop
           playsInline
           onLoadedData={() => markLoaded(i as 0 | 1)}
+          onCanPlay={() => markLoaded(i as 0 | 1)}
+          // If video1 can't be fetched at all, release video2 anyway instead of
+          // leaving the whole hero black behind a dependency that never resolves.
+          onError={() => i === 0 && setLoadSecond(true)}
           className="absolute inset-0 w-full h-full object-cover"
-          animate={{ opacity: loaded[i] && active === i ? 1 : 0 }}
+          // video1 is the base layer and stays opaque once loaded; only video2
+          // on top animates. Fading BOTH at once put each at 0.5 over black
+          // mid-crossfade (0.5*V2 + 0.25*V1), a 25% dip every 12s. With a solid
+          // base the sum stays at full brightness: a*V2 + (1-a)*V1.
+          // video2 also shows when video1 never loaded, so one working file is
+          // enough to fill the hero.
+          animate={{
+            opacity:
+              i === 0
+                ? loaded[0]
+                  ? 1
+                  : 0
+                : loaded[1] && (active === 1 || !loaded[0])
+                  ? 1
+                  : 0,
+          }}
           transition={{ duration: 2, ease: "easeInOut" }}
         />
       ))}
