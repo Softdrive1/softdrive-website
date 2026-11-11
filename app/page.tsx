@@ -1,5 +1,5 @@
 import Navbar from "./components/Navbar";
-import BackgroundSwitcher from "./components/BackgroundSwitcher";
+import GalaxyBackground from "./components/GalaxyBackground";
 import HeroSection from "./components/HeroSection";
 import HardDriveSection from "./components/HardDriveSection";
 import ReleasesSection from "./components/ReleasesSection";
@@ -17,7 +17,7 @@ import Footer from "./components/Footer";
 export default function Home() {
   return (
     <>
-      <BackgroundSwitcher />
+      <GalaxyBackground />
       <div style={{ position: "relative", zIndex: 1 }}>
         <Navbar />
         <main>

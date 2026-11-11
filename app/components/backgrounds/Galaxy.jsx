@@ -14,6 +14,25 @@ const MAX_LAYERS = 8;
 const MAX_COLORS = 4;
 const INTRO_SECONDS = 2.2;
 
+/* LOKALE AENDERUNG gegenueber React Bits: gedeckelte Bildrate.
+   Das Original rendert bei jedem requestAnimationFrame, also 60 Bilder je
+   Sekunde auf einem normalen Schirm und 120 auf einem iPhone mit ProMotion.
+   Das Sternenfeld driftet aber sehr langsam (starSpeed 0.5) — zwischen zwei
+   Bildern bewegt sich bei 30 Hz kaum ein Pixel. Nur waehrend einer
+   Interaktion zaehlt jedes Bild: der Warp beim Klick und die Sterne, die vor
+   dem Cursor wegkippen. Darum zwei Stufen. Auf dem Telefon gibt es kein
+   Hovern, dort laeuft also fast immer die kleine Stufe. */
+const IDLE_FPS = 30;
+const ACTIVE_FPS = 60;
+// Wie lange nach der letzten Mausbewegung noch mit voller Rate gezeichnet wird.
+const ACTIVE_TAIL_MS = 700;
+/* Spielraum beim Vergleich, damit der Deckel nicht gegen den Bildtakt
+   schwebt: ein 60-Hz-Schirm liefert Bilder im Abstand 16,7 ms, zwei davon
+   sind 33,4 ms — knapp ueber 33,3. Ohne Spielraum faellt jedes zweite Paar
+   durchs Raster und man landet bei 20 statt 30 Bildern. 4 ms deckt 60, 90
+   und 120 Hz ab. */
+const FRAME_SLACK_MS = 4;
+
 const VERTEX = `#version 300 es
 in vec2 aPosition;
 void main() {
@@ -323,8 +342,17 @@ const Galaxy = ({
     canvas.className = 'galaxy-canvas';
     canvas.setAttribute('aria-hidden', 'true');
     container.appendChild(canvas);
+    /* LOKALE AENDERUNG: alpha haengt am transparent-Prop statt fest auf true
+       zu stehen. Bei transparent={false} schreibt der Shader ohnehin
+       durchgehend Alpha 1 — ein undurchsichtiges Canvas erspart dem
+       Compositor dann den Blend-Durchgang ueber die ganze Flaeche. Die
+       Shader-Zeit je Bild aendert das messbar nicht (7,70 gegen 7,60 ms),
+       der Gewinn liegt hinter dem, was eine Timer-Query sieht.
+       powerPreference wurde ausprobiert und wieder verworfen: 'low-power'
+       lief in der Messung langsamer statt schneller, und auf Apple Silicon
+       gibt es ohnehin nur eine Grafikeinheit — zu holen ist da nichts. */
     const gl = canvas.getContext('webgl2', {
-      alpha: true,
+      alpha: settingsRef.current.transparent !== false,
       premultipliedAlpha: true,
       antialias: false,
       depth: false,
@@ -391,7 +419,7 @@ const Galaxy = ({
     };
     const colors = new Float32Array(MAX_COLORS * 3);
 
-    const pointer = { x: 0.5, y: 0.5, inside: false };
+    const pointer = { x: 0.5, y: 0.5, inside: false, moved: -Infinity };
     const state = {
       time: 0,
       gloss: 0,
@@ -460,6 +488,17 @@ const Galaxy = ({
       raf = 0;
       if (!visible || document.hidden) return;
       const s = settingsRef.current;
+      /* Lebhaft ist die Szene nur, solange sich wirklich etwas bewegt, das
+         schnelle Bilder braucht: der Warp nach einem Klick, das Einblenden
+         beim Laden, oder ein Zeiger, der gerade eben noch unterwegs war.
+         Sonst reicht die halbe Rate. Ohne last ist es das erste Bild nach
+         einer Pause — das wird nie uebersprungen. */
+      const lively =
+        state.boost > 0 || state.reveal < 1 || now - pointer.moved < ACTIVE_TAIL_MS;
+      if (last && now - last < 1000 / (lively ? ACTIVE_FPS : IDLE_FPS) - FRAME_SLACK_MS) {
+        raf = requestAnimationFrame(frame);
+        return;
+      }
       const dt = last ? clamp((now - last) / 1000, 0.0005, 0.05) : 1 / 60;
       last = now;
       const motion = s.disableAnimation || reduce ? 0 : 1;
@@ -519,6 +558,7 @@ const Galaxy = ({
 
     const onPointerMove = event => {
       locate(event);
+      pointer.moved = performance.now();
       wake();
     };
 
@@ -526,6 +566,7 @@ const Galaxy = ({
       const s = settingsRef.current;
       locate(event);
       if (!pointer.inside || !s.clickWarp || reduce) return;
+      pointer.moved = performance.now();
       state.boost = Math.min(1.6, state.boost + 1);
       wake();
     };

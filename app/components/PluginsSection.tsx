@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { motion } from "framer-motion";
 import { FaVolumeMute, FaVolumeUp } from "react-icons/fa";
 import SectionHeading from "./SectionHeading";
@@ -72,6 +72,30 @@ export default function PluginsSection() {
     () => /Instagram/i.test(navigator.userAgent),
     () => false
   );
+
+  /* Das Demo-Video laeuft nur, solange es zu sehen ist. Mit autoPlay allein
+     laedt und dekodiert jedes Telefon die 2,5 MB sofort beim Seitenaufruf —
+     auch bei Besuchern, die bis hierher nie herunterscrollen. preload="none"
+     plus dieser Beobachter verschiebt beides auf den Moment, in dem der
+     Abschnitt wirklich in den Blick kommt. Ohne IntersectionObserver (sehr
+     alte Browser) wird einfach sofort gestartet. */
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (typeof IntersectionObserver === "undefined") {
+      void video.play().catch(() => {});
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) void video.play().catch(() => {});
+        else video.pause();
+      },
+      { rootMargin: "200px" }
+    );
+    observer.observe(video);
+    return () => observer.disconnect();
+  }, []);
 
   function toggleSound() {
     const v = videoRef.current;
@@ -152,11 +176,10 @@ export default function PluginsSection() {
                     <>
                       <video
                         ref={videoRef}
-                        autoPlay
                         loop
                         muted
                         playsInline
-                        preload="metadata"
+                        preload="none"
                         aria-label="Softdrive Rhythm running in Ableton Live"
                         style={{ width: "100%", height: "100%", objectFit: "cover" }}
                       >
