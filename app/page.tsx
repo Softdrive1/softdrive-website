@@ -1,5 +1,5 @@
 import Navbar from "./components/Navbar";
-import DitherBackground from "./components/DitherBackground";
+import BackgroundSwitcher from "./components/BackgroundSwitcher";
 import HeroSection from "./components/HeroSection";
 import HardDriveSection from "./components/HardDriveSection";
 import ReleasesSection from "./components/ReleasesSection";
@@ -17,7 +17,7 @@ import Footer from "./components/Footer";
 export default function Home() {
   return (
     <>
-      <DitherBackground />
+      <BackgroundSwitcher />
       <div style={{ position: "relative", zIndex: 1 }}>
         <Navbar />
         <main>
