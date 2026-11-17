@@ -194,9 +194,12 @@ html[data-scrolling] .sc-frame {
   color: rgba(8, 8, 11, 0.6);
 }
 
-/* Upcoming single — pre-save card. Mirrors the Spotify embed's geometry
-   (152 px tall, 96 px cover top-left with 12 px inset, title / artists /
-   third row, round action bottom-right) so it sits flush above it. */
+/* Upcoming single — pre-save card. Copies the Spotify embed's geometry so
+   it sits flush above it. Spotify has two layouts and so does this:
+   narrow (phone) 96 px cover with 12 px inset, wide (desktop) 120 px cover
+   16 px from the top and 12 px from the left. Both 152 px tall; title, artists and third row centred
+   at 45 / 69 / 99 px from the top; round action centred 28 px from the
+   bottom and 30 px from the right. Measured off screenshots of both. */
 .upcoming-card {
   position: relative;
   display: flex;
@@ -221,22 +224,22 @@ html[data-scrolling] .sc-frame {
   flex-direction: column;
   min-width: 0;
   flex: 1;
-  padding-top: 21px;
+  padding-top: 23px;
 }
 
 .upcoming-title {
-  font-size: 19px;
+  font-size: 16px;
   font-weight: 700;
-  line-height: 1.25;
+  line-height: 20px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .upcoming-artists {
-  margin-top: 3px;
+  margin-top: 5px;
   font-size: 15px;
-  line-height: 1.3;
+  line-height: 18px;
   color: rgba(8, 8, 11, 0.6);
   white-space: nowrap;
   overflow: hidden;
@@ -244,8 +247,9 @@ html[data-scrolling] .sc-frame {
 }
 
 .upcoming-meta {
-  margin-top: 10px;
+  margin-top: 12px;
   font-size: 14px;
+  line-height: 17px;
   color: rgba(8, 8, 11, 0.6);
 }
 
@@ -265,6 +269,19 @@ html[data-scrolling] .sc-frame {
 
 .upcoming-card:hover .upcoming-button {
   opacity: 0.8;
+}
+
+@media (min-width: 520px) {
+  .upcoming-card {
+    padding: 16px 12px;
+  }
+  .upcoming-cover {
+    width: 120px;
+    height: 120px;
+  }
+  .upcoming-body {
+    padding-top: 19px;
+  }
 }
 
 /* ── Upcoming Dates — light cards (same #f4f4f4 tone as the SoundCloud

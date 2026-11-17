@@ -100,8 +100,8 @@ function UpcomingCard() {
       <img
         src={UPCOMING.cover}
         alt={`${UPCOMING.title} cover`}
-        width={96}
-        height={96}
+        width={120}
+        height={120}
         className="upcoming-cover"
       />
       <div className="upcoming-body">
