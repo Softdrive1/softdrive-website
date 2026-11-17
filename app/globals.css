@@ -194,6 +194,79 @@ html[data-scrolling] .sc-frame {
   color: rgba(8, 8, 11, 0.6);
 }
 
+/* Upcoming single — pre-save card. Mirrors the Spotify embed's geometry
+   (152 px tall, 96 px cover top-left with 12 px inset, title / artists /
+   third row, round action bottom-right) so it sits flush above it. */
+.upcoming-card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  height: 152px;
+  padding: 12px;
+  background: #ffffff;
+  color: #08080b;
+}
+
+.upcoming-cover {
+  width: 96px;
+  height: 96px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.upcoming-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+  padding-top: 21px;
+}
+
+.upcoming-title {
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.upcoming-artists {
+  margin-top: 3px;
+  font-size: 15px;
+  line-height: 1.3;
+  color: rgba(8, 8, 11, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.upcoming-meta {
+  margin-top: 10px;
+  font-size: 14px;
+  color: rgba(8, 8, 11, 0.6);
+}
+
+.upcoming-button {
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #08080b;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+}
+
+.upcoming-card:hover .upcoming-button {
+  opacity: 0.8;
+}
+
 /* ── Upcoming Dates — light cards (same #f4f4f4 tone as the SoundCloud
    players and the Demo Drop card) ─────────────────── */
 .date-card {

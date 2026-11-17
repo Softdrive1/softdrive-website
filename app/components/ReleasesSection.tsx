@@ -1,5 +1,6 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import { motion, type Variants } from "framer-motion";
 import SectionHeading from "./SectionHeading";
 import SoundCloudPlayer from "./SoundCloudPlayer";
@@ -60,6 +61,61 @@ const RELEASES: Release[] = [
   },
 ];
 
+/* Upcoming single — pre-save card, laid out like the Spotify embed below it
+   (152 px, cover top-left, title / artists / third row, action bottom-right)
+   so the list reads as one set. Reuse it for every release in the weeks
+   before it comes out. The Ditto link is a pre-save page until release day and
+   turns into the smart link on its own afterwards, so only the wording flips.
+   Once the track is on Spotify, move it into RELEASES with its spotifyId and
+   drop this block. */
+const UPCOMING = {
+  title: "Dreamworld",
+  artists: "Softdrive, Senna",
+  cover: "/releases/dreamworld.webp",
+  url: "https://ditto.fm/dreamworld-softdrive",
+  releaseDate: "2026-11-20",
+  releaseLabel: "20.11.2026",
+};
+
+const NEVER_CHANGES = () => () => {};
+
+function UpcomingCard() {
+  /* Compared in the visitor's local time; server snapshot = not out yet,
+     so SSR and first paint always agree. */
+  const isOut = useSyncExternalStore(
+    NEVER_CHANGES,
+    () => new Date() >= new Date(`${UPCOMING.releaseDate}T00:00:00`),
+    () => false
+  );
+
+  return (
+    <a
+      href={UPCOMING.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="upcoming-card"
+      aria-label={`${UPCOMING.title} – ${isOut ? "listen now" : "pre-save"}`}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={UPCOMING.cover}
+        alt={`${UPCOMING.title} cover`}
+        width={96}
+        height={96}
+        className="upcoming-cover"
+      />
+      <div className="upcoming-body">
+        <span className="upcoming-title">{UPCOMING.title}</span>
+        <span className="upcoming-artists">{UPCOMING.artists}</span>
+        <span className="upcoming-meta">
+          {isOut ? "Out now" : `Out ${UPCOMING.releaseLabel}`}
+        </span>
+      </div>
+      <span className="upcoming-button">{isOut ? "Listen now" : "Pre-save"}</span>
+    </a>
+  );
+}
+
 const containerVariants: Variants = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.09 } },
@@ -96,6 +152,13 @@ export default function ReleasesSection() {
           whileInView="visible"
           viewport={{ once: true, margin: "-60px" }}
         >
+            <motion.div variants={itemVariants}>
+              <div className="release-card-outer">
+                <div className="release-card-inner">
+                  <UpcomingCard />
+                </div>
+              </div>
+            </motion.div>
             {RELEASES.map((release) => (
               <motion.div key={release.id} variants={itemVariants}>
                 <div className="release-card-outer">
