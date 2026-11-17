@@ -131,18 +131,21 @@ function GigCard({ gig, past = false }: { gig: Gig; past?: boolean }) {
           </span>
         )}
       </span>
-      {gig.link && (
-        <span
-          className="font-label"
-          style={{
-            fontSize: "13px",
-            color: c.link,
-            whiteSpace: "nowrap",
-          }}
-        >
-          {past ? "Event ↗" : "Tickets ↗"}
-        </span>
-      )}
+      {/* Always rendered, so every card has the same height whether or not
+          the link is in yet: upcoming says "Tickets soon", past keeps an
+          invisible placeholder. */}
+      <span
+        className="font-label"
+        aria-hidden={gig.link || !past ? undefined : true}
+        style={{
+          fontSize: "13px",
+          color: gig.link ? c.link : c.venue,
+          whiteSpace: "nowrap",
+          visibility: gig.link || !past ? "visible" : "hidden",
+        }}
+      >
+        {gig.link ? (past ? "Event ↗" : "Tickets ↗") : past ? "Event ↗" : "Tickets soon"}
+      </span>
     </div>
   );
 
