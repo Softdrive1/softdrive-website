@@ -295,17 +295,16 @@ export default function GameSection() {
       );
       if (!active()) draw();
     };
-    // On touch the figure only follows the finger during a round — before
-    // START and after game over a swipe over the playfield is just a scroll.
-    const steers = (e: PointerEvent) => playing || e.pointerType === "mouse";
+    // The figure only follows mouse or finger during a round — before START
+    // and after game over it stays put (and a swipe on touch is just a scroll).
     const onPointerMove = (e: PointerEvent) => {
-      if (steers(e)) moveTo(e.clientX);
+      if (playing) moveTo(e.clientX);
     };
     // Touching the playfield only steers. Starting is the START button's
     // job — otherwise any tap while scrolling past started a round and the
     // canvas (touch-action: none) swallowed the scroll.
     const onPointerDown = (e: PointerEvent) => {
-      if (steers(e)) moveTo(e.clientX);
+      if (playing) moveTo(e.clientX);
     };
     canvas.addEventListener("pointermove", onPointerMove);
     canvas.addEventListener("pointerdown", onPointerDown);
