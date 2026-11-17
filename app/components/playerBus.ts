@@ -1,19 +1,29 @@
 /* Keeps the Spotify + SoundCloud embeds from playing over each other:
-   every player registers a pause() handle, and whoever starts playing
-   claims playback, pausing all the others. */
+   every player registers a pause() handle and reports when it starts and
+   stops. Whoever starts playing claims playback, pausing the others that
+   are actually playing — and only those. Sending pause to every idle
+   embed on each start disturbed the starting track on iOS, where all
+   embeds share one audio session. */
 
 type Player = { pause: () => void };
 
-const players = new Set<Player>();
+const playing = new Set<Player>();
 
 export function registerPlayer(player: Player): () => void {
-  players.add(player);
-  return () => players.delete(player);
+  return () => playing.delete(player);
+}
+
+export function setPlaying(player: Player, isPlaying: boolean) {
+  if (isPlaying) playing.add(player);
+  else playing.delete(player);
 }
 
 export function claimPlayback(current: Player) {
-  players.forEach((p) => {
-    if (p !== current) p.pause();
+  setPlaying(current, true);
+  playing.forEach((p) => {
+    if (p === current) return;
+    playing.delete(p);
+    p.pause();
   });
 }
 

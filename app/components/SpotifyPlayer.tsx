@@ -5,6 +5,7 @@ import {
   claimPlayback,
   loadSpotifyApi,
   registerPlayer,
+  setPlaying,
   type SpotifyController,
 } from "./playerBus";
 
@@ -49,13 +50,38 @@ export default function SpotifyPlayer({
             controller = c;
             const me = { pause: () => c.pause() };
             unregister = registerPlayer(me);
-            // Claim only on the paused→playing edge: while another player
-            // takes over, stale "still playing" ticks must not pause it back.
-            let wasPaused = true;
+            // Spotify sends a status update right on the tap, but reports
+            // "playing" only ~1 s later — claiming then let it play over the
+            // previous track. So any update counts as "starting", except the
+            // one confirming a pause the bus itself just sent.
+            let busPausedAt = -Infinity;
+            let claimed = false;
+            let wasPlaying = false;
+            me.pause = () => {
+              busPausedAt = performance.now();
+              claimed = false;
+              wasPlaying = false;
+              c.pause();
+            };
             c.addListener("playback_update", (e) => {
               const { isPaused } = e.data;
-              if (wasPaused && !isPaused) claimPlayback(me);
-              wasPaused = isPaused;
+              if (!isPaused) {
+                if (!claimed) claimPlayback(me);
+                claimed = true;
+                wasPlaying = true;
+                return;
+              }
+              if (wasPlaying) {
+                // Paused by the visitor, or the preview ran out.
+                wasPlaying = false;
+                claimed = false;
+                setPlaying(me, false);
+                return;
+              }
+              if (performance.now() - busPausedAt < 1500) return;
+              // Not playing yet and not our own pause: the tap that starts it.
+              if (!claimed) claimPlayback(me);
+              claimed = true;
             });
           }
         );

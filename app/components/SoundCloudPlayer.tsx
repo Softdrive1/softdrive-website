@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { claimPlayback, loadSoundCloudApi, registerPlayer } from "./playerBus";
+import {
+  claimPlayback,
+  loadSoundCloudApi,
+  registerPlayer,
+  setPlaying,
+} from "./playerBus";
 
 function scSrc(url: string) {
   return `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%23ff5500&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&visual=false`;
@@ -22,7 +27,7 @@ function installScrollGuard() {
   window.addEventListener(
     "scroll",
     () => {
-      root.dataset.scrolling = "";
+      if (!("scrolling" in root.dataset)) root.dataset.scrolling = "";
       window.clearTimeout(timer);
       timer = window.setTimeout(() => delete root.dataset.scrolling, 250);
     },
@@ -53,6 +58,8 @@ export default function SoundCloudPlayer({
         const me = { pause: () => widget.pause() };
         unregister = registerPlayer(me);
         widget.bind(SC.Widget.Events.PLAY, () => claimPlayback(me));
+        widget.bind(SC.Widget.Events.PAUSE, () => setPlaying(me, false));
+        widget.bind(SC.Widget.Events.FINISH, () => setPlaying(me, false));
       })
       .catch(() => {});
     return () => {

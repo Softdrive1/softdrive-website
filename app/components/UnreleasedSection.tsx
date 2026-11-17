@@ -8,6 +8,7 @@ import {
   claimPlayback,
   loadSoundCloudApi,
   registerPlayer,
+  setPlaying as setBusPlaying,
   type SoundCloudWidget,
 } from "./playerBus";
 
@@ -76,6 +77,7 @@ export default function UnreleasedSection() {
           refreshSound(); // picks up the new title after track changes
         });
         widget.bind(SC.Widget.Events.PAUSE, () => {
+          setBusPlaying(me, false);
           if (!disposed) setPlaying(false);
         });
         widget.bind(SC.Widget.Events.PLAY_PROGRESS, (data) => {
