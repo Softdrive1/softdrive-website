@@ -172,6 +172,10 @@ body::after {
    blocker eats the embed, so every visitor still has a path to the track.
    White like the embed above so player + banner read as one block; the
    card's overflow:hidden clips it to the same corner radius. */
+html[data-scrolling] .sc-frame {
+  pointer-events: none;
+}
+
 .sc-fallback {
   display: flex;
   align-items: center;
