@@ -462,6 +462,14 @@ a:hover > .date-card--past,
   -webkit-appearance: none;
 }
 
+/* iOS Safari zoomt beim Antippen in jedes Feld unter 16px hinein und bleibt
+   danach vergrößert stehen. Auf Touch-Geräten darum 16px. */
+@media (pointer: coarse) {
+  .demo-input {
+    font-size: 16px;
+  }
+}
+
 .demo-input::placeholder {
   color: var(--text-dim);
 }

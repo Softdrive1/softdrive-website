@@ -50,7 +50,7 @@ export default function HardDriveSection() {
   };
 
   return (
-    <section style={{ position: "relative", height: "80vh" }}>
+    <section data-no-warp style={{ position: "relative", height: "80vh" }}>
       {/* 3D model over the site-wide dither background. Drag to rotate; the
           div's touch-action: pan-y lets vertical swipes still scroll the page
           on mobile, so only horizontal drags spin the model there. */}

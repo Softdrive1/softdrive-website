@@ -230,6 +230,12 @@ void main() {
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
+/* Was nicht als Hintergrund zählt: alles Bedienbare, Medien, und ganze
+   Abschnitte, die selbst auf Finger reagieren (Figuren, Galerie, Synth, Game,
+   Hero) — die tragen data-no-warp. */
+const NO_WARP =
+  'a, button, input, textarea, select, label, iframe, video, img, canvas, [role="button"], [data-no-warp]';
+
 const keyOf = (palette, repel, warp) => (palette ? 4 : 0) + (repel ? 2 : 0) + (warp ? 1 : 0);
 
 const start = (gl, palette, repel, warp) => {
@@ -420,6 +426,11 @@ const Galaxy = ({
     const colors = new Float32Array(MAX_COLORS * 3);
 
     const pointer = { x: 0.5, y: 0.5, inside: false, moved: -Infinity };
+    /* Ob der laufende Touch auf freiem Hintergrund begonnen hat. Die Listener
+       hängen am window, also kommt jeder Druck auf der Seite hier an — auch
+       auf den Figuren, beim Wischen durch die Galerie oder im Game. Dort soll
+       weder der Warp zünden noch das Sternenfeld dem Finger folgen. */
+    let touchOnBackground = false;
     const state = {
       time: 0,
       gloss: 0,
@@ -557,6 +568,7 @@ const Galaxy = ({
     };
 
     const onPointerMove = event => {
+      if (event.pointerType !== 'mouse' && !touchOnBackground) return;
       locate(event);
       pointer.moved = performance.now();
       wake();
@@ -564,15 +576,26 @@ const Galaxy = ({
 
     const onPointerDown = event => {
       const s = settingsRef.current;
+      const onBackground = !event.target?.closest?.(NO_WARP);
+      if (event.pointerType !== 'mouse') {
+        touchOnBackground = onBackground;
+        if (!onBackground) {
+          pointer.inside = false;
+          return;
+        }
+      }
       locate(event);
-      if (!pointer.inside || !s.clickWarp || reduce) return;
+      if (!onBackground || !pointer.inside || !s.clickWarp || reduce) return;
       pointer.moved = performance.now();
       state.boost = Math.min(1.6, state.boost + 1);
       wake();
     };
 
     const onPointerUp = event => {
-      if (event.pointerType !== 'mouse') pointer.inside = false;
+      if (event.pointerType !== 'mouse') {
+        pointer.inside = false;
+        touchOnBackground = false;
+      }
     };
 
     const onPointerLeave = () => {

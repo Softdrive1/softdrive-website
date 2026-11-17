@@ -63,7 +63,7 @@ export default function HeroSection() {
   }, [loaded]);
 
   return (
-    <section
+    <section data-no-warp
       id="home"
       className="relative flex items-center justify-center min-h-dvh overflow-hidden"
       style={{ background: "#000" }}

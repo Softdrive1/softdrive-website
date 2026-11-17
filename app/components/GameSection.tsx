@@ -47,6 +47,7 @@ export default function GameSection() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const resetRef = useRef<() => void>(() => {});
+  const startRef = useRef<() => void>(() => {});
   const highRef = useRef<Highscore | null>(null);
   const [count, setCount] = useState(0);
   const [phase, setPhase] = useState<"idle" | "playing" | "over">("idle");
@@ -294,17 +295,27 @@ export default function GameSection() {
       );
       if (!active()) draw();
     };
-    const onPointerMove = (e: PointerEvent) => moveTo(e.clientX);
+    // On touch the figure only follows the finger during a round — before
+    // START and after game over a swipe over the playfield is just a scroll.
+    const steers = (e: PointerEvent) => playing || e.pointerType === "mouse";
+    const onPointerMove = (e: PointerEvent) => {
+      if (steers(e)) moveTo(e.clientX);
+    };
+    // Touching the playfield only steers. Starting is the START button's
+    // job — otherwise any tap while scrolling past started a round and the
+    // canvas (touch-action: none) swallowed the scroll.
     const onPointerDown = (e: PointerEvent) => {
-      moveTo(e.clientX);
-      if (!playing) {
-        playing = true;
-        setPhase("playing");
-        sync();
-      }
+      if (steers(e)) moveTo(e.clientX);
     };
     canvas.addEventListener("pointermove", onPointerMove);
     canvas.addEventListener("pointerdown", onPointerDown);
+
+    startRef.current = () => {
+      if (playing) return;
+      playing = true;
+      setPhase("playing");
+      sync();
+    };
 
     resetRef.current = () => {
       drives = [];
@@ -348,7 +359,7 @@ export default function GameSection() {
   }
 
   return (
-    <section
+    <section data-no-warp
       id="game"
       className="relative"
       style={{ paddingTop: "3rem", paddingBottom: "3rem" }}
@@ -413,21 +424,33 @@ export default function GameSection() {
                     width: "100%",
                     height: "100%",
                     display: "block",
-                    touchAction: "none",
+                    // Only lock scrolling while a round runs; idle and game
+                    // over let the page scroll over the playfield.
+                    touchAction: phase === "playing" ? "none" : "pan-y",
                   }}
                 />
                 <div className="crt-screen-rim" aria-hidden="true" />
                 {phase === "idle" && (
                   <div
-                    className="font-display absolute inset-0 flex items-center justify-center pointer-events-none select-none"
-                    style={{
-                      zIndex: 3,
-                      fontSize: "clamp(1.1rem, 3.5vw, 1.5rem)",
-                      letterSpacing: "0.08em",
-                      textShadow: "0 2px 12px rgba(0,0,0,0.8)",
-                    }}
+                    className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
+                    style={{ zIndex: 3 }}
                   >
-                    {coarse ? "TAP TO START" : "CLICK TO START"}
+                    <button
+                      type="button"
+                      onClick={() => startRef.current()}
+                      className="font-display pointer-events-auto"
+                      style={{
+                        padding: "12px 26px",
+                        border: "1px solid var(--border-hover)",
+                        background: "rgba(0, 0, 0, 0.55)",
+                        cursor: "pointer",
+                        fontSize: "clamp(1.1rem, 3.5vw, 1.5rem)",
+                        letterSpacing: "0.08em",
+                        textShadow: "0 2px 12px rgba(0,0,0,0.8)",
+                      }}
+                    >
+                      {coarse ? "TAP TO START" : "CLICK TO START"}
+                    </button>
                   </div>
                 )}
                 {phase === "over" && (
@@ -473,7 +496,8 @@ export default function GameSection() {
                               background: "rgba(0, 0, 0, 0.5)",
                               border: "1px solid var(--border-hover)",
                               color: "inherit",
-                              fontSize: "0.95rem",
+                              // 16px: darunter zoomt iOS beim Antippen rein
+                              fontSize: "1rem",
                             }}
                           />
                           <button

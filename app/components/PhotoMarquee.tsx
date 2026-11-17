@@ -180,7 +180,7 @@ export default function PhotoMarquee() {
   }, []);
 
   return (
-    <section
+    <section data-no-warp
       ref={sectionRef}
       aria-label="Analog photos"
       style={{

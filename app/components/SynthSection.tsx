@@ -41,7 +41,7 @@ export default function SynthSection() {
   }, []);
 
   return (
-    <section
+    <section data-no-warp
       ref={sectionRef}
       id="play"
       className="relative"
